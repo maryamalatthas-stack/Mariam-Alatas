@@ -16,7 +16,14 @@ import {
   Calculator,
   Search,
   LayoutDashboard,
-  Pencil
+  Pencil,
+  Globe,
+  ChevronDown,
+  Share2,
+  Mail,
+  FileSpreadsheet,
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Ingredient, Recipe, RecipeIngredient } from './types';
@@ -24,20 +31,327 @@ import { Ingredient, Recipe, RecipeIngredient } from './types';
 // Storage Keys
 const STORAGE_INGREDIENTS = 'bakecost_ingredients';
 const STORAGE_RECIPES = 'bakecost_recipes';
+const STORAGE_CURRENCY = 'bakecost_currency';
+const STORAGE_LANG = 'bakecost_language';
+
+const TRANSLATIONS = {
+  en: {
+    dashboard: 'Dashboard',
+    inventory: 'Inventory',
+    recipes: 'Recipes',
+    welcome: 'Welcome Back',
+    bakery_dashboard: 'Bakery Dashboard',
+    new_calculation: 'NEW CALCULATION',
+    recent_inventory: 'Recent Inventory',
+    manage: 'Manage',
+    quick_stats: 'Quick Stats',
+    active_recipes: 'Active Recipes',
+    raw_ingredients: 'Raw Ingredients',
+    calculated_recipes: 'Calculated Recipes',
+    explore_collection: 'Explore Collection',
+    no_recipes: 'No recipes yet...',
+    start_now: 'Start Now',
+    cogs_per_pc: 'COGS per Pc',
+    pieces_yield: 'Pieces Yield',
+    raw_materials: 'Raw Materials',
+    ingredient_inventory: 'Ingredient Inventory',
+    currency: 'Currency',
+    item_catalog: 'Item Catalog',
+    total_weight: 'Total Weight',
+    purchase_price: 'Purchase Price',
+    cost_per_gr: 'Cost / Gr',
+    action: 'Action',
+    pantry_empty: 'Your pantry is currently empty.',
+    production_management: 'Production Management',
+    recipe_cogs_analysis: 'Recipe & COGS Analysis',
+    saved_formulas: 'Saved Formulas',
+    recipe_list_empty: 'Recipe collection is empty.',
+    new_ingredient: 'New Ingredient',
+    edit_ingredient: 'Edit Ingredient',
+    ingredient_name: 'Ingredient Name',
+    weight: 'Weight (gr)',
+    price: 'Price',
+    cancel: 'Cancel',
+    add_item: 'Add Item',
+    update_item: 'Update',
+    recipe_builder: 'Recipe Builder',
+    calculator: 'Calculator',
+    recipe_label: 'Recipe Label',
+    yield_pcs: 'Yield (PCS)',
+    labor_cost: 'Labor Cost',
+    packaging_pc: 'Packaging / Piece',
+    ingredients: 'Ingredients',
+    generate_calculation: 'GENERATE CALCULATION',
+    cogs_per_piece: 'COGS PER PIECE',
+    breakdown: 'Breakdown',
+    weights_in_gr: 'Weights in GR',
+    ingredient_subtotal: 'Ingredient Subtotal',
+    operational_detail: 'Operational Detail',
+    packaging: 'Packaging',
+    labor_capex: 'Labor / CapEx',
+    total_batch_cost: 'Total Batch Cost',
+    unit_summary: 'Unit Summary',
+    cogs_per_unit: 'COGS Per Unit',
+    profit_tier: 'Profit Tier',
+    margin: 'Margin',
+    archive_recipe: 'Archive Recipe',
+    search_placeholder: 'Search inventory items...',
+    language: 'Language',
+    business_health: 'Business Health',
+    export_report: 'Export Report',
+    send_to_email: 'Send to Email',
+    google_sheet_link: 'Google Sheet Link',
+    sending: 'Sending...',
+    success: 'Success!',
+    error: 'Error',
+    enter_email: 'Enter your email',
+    connect_google: 'Connect Google',
+    export_options: 'Export Options',
+    spreadsheet_created: 'Spreadsheet Created!',
+  },
+  id: {
+    dashboard: 'Dasbor',
+    inventory: 'Inventaris',
+    recipes: 'Resep',
+    welcome: 'Selamat Datang Kembali',
+    bakery_dashboard: 'Dasbor Toko Roti',
+    new_calculation: 'KALKULASI BARU',
+    recent_inventory: 'Inventaris Terbaru',
+    manage: 'Kelola',
+    quick_stats: 'Statistik Cepat',
+    active_recipes: 'Resep Aktif',
+    raw_ingredients: 'Bahan Baku',
+    calculated_recipes: 'Resep Terkalkulasi',
+    explore_collection: 'Jelajahi Koleksi',
+    no_recipes: 'Belum ada resep...',
+    start_now: 'Mulai Sekarang',
+    cogs_per_pc: 'COGS per Buah',
+    pieces_yield: 'Hasil Potong',
+    raw_materials: 'Bahan Baku',
+    ingredient_inventory: 'Inventaris Bahan',
+    currency: 'Mata Uang',
+    item_catalog: 'Katalog Barang',
+    total_weight: 'Total Berat',
+    purchase_price: 'Harga Beli',
+    cost_per_gr: 'Biaya / Gr',
+    action: 'Aksi',
+    pantry_empty: 'Dapur Anda saat ini kosong.',
+    production_management: 'Manajemen Produksi',
+    recipe_cogs_analysis: 'Analisis Resep & COGS',
+    saved_formulas: 'Formula Tersimpan',
+    recipe_list_empty: 'Koleksi resep kosong.',
+    new_ingredient: 'Bahan Baru',
+    edit_ingredient: 'Ubah Bahan',
+    ingredient_name: 'Nama Bahan',
+    weight: 'Berat (gr)',
+    price: 'Harga',
+    cancel: 'Batal',
+    add_item: 'Tambah Barang',
+    update_item: 'Perbarui',
+    recipe_builder: 'Pembuat Resep',
+    calculator: 'Kalkulator',
+    recipe_label: 'Label Resep',
+    yield_pcs: 'Hasil (PCS)',
+    labor_cost: 'Biaya Tenaga Kerja',
+    packaging_pc: 'Kemasan / Buah',
+    ingredients: 'Bahan-bahan',
+    generate_calculation: 'BUAT KALKULASI',
+    cogs_per_piece: 'COGS PER BUAH',
+    breakdown: 'Rincian',
+    weights_in_gr: 'Berat dalam GR',
+    ingredient_subtotal: 'Subtotal Bahan',
+    operational_detail: 'Detail Operasional',
+    packaging: 'Kemasan',
+    labor_capex: 'Tenaga Kerja / CapEx',
+    total_batch_cost: 'Total Biaya Batch',
+    unit_summary: 'Ringkasan Unit',
+    cogs_per_unit: 'COGS Per Unit',
+    profit_tier: 'Tingkat Laba',
+    margin: 'Margin',
+    archive_recipe: 'Arsip Resep',
+    search_placeholder: 'Cari barang inventaris...',
+    language: 'Bahasa',
+    business_health: 'Kesehatan Bisnis',
+    export_report: 'Ekspor Laporan',
+    send_to_email: 'Kirim ke Email',
+    google_sheet_link: 'Tautan Google Sheet',
+    sending: 'Mengirim...',
+    success: 'Berhasil!',
+    error: 'Kesalahan',
+    enter_email: 'Masukkan email Anda',
+    connect_google: 'Hubungkan Google',
+    export_options: 'Opsi Ekspor',
+    spreadsheet_created: 'Spreadsheet Dibuat!',
+  },
+  ar: {
+    dashboard: 'لوحة القيادة',
+    inventory: 'المخزون',
+    recipes: 'الوصفات',
+    welcome: 'مرحباً بعودتك',
+    bakery_dashboard: 'لوحة تحكم المخبز',
+    new_calculation: 'حساب جديد',
+    recent_inventory: 'المخزون الأخير',
+    manage: 'إدارة',
+    quick_stats: 'إحصائيات سريعة',
+    active_recipes: 'الوصفات النشطة',
+    raw_ingredients: 'المواد الخام',
+    calculated_recipes: 'الوصفات المحسوبة',
+    explore_collection: 'استكشاف المجموعة',
+    no_recipes: 'لا توجد وصفات بعد...',
+    start_now: 'ابدأ الآن',
+    cogs_per_pc: 'تكلفة القطعة',
+    pieces_yield: 'كمية الإنتاج',
+    raw_materials: 'المواد الخام',
+    ingredient_inventory: 'مخزون المكونات',
+    currency: 'العملة',
+    item_catalog: 'كتالوج العناصر',
+    total_weight: 'الوزن الإجمالي',
+    purchase_price: 'سعر الشراء',
+    cost_per_gr: 'التكلفة / جرام',
+    action: 'إجراء',
+    pantry_empty: 'المخزن الخاص بك فارغ حالياً.',
+    production_management: 'إدارة الإنتاج',
+    recipe_cogs_analysis: 'تحليل الوصفات والتكلفة',
+    saved_formulas: 'الصيغ المحفوظة',
+    recipe_list_empty: 'مجموعة الوصفات فارغة.',
+    new_ingredient: 'مكون جديد',
+    edit_ingredient: 'تعديل المكون',
+    ingredient_name: 'اسم المكون',
+    weight: 'الوزن (جرام)',
+    price: 'السعر',
+    cancel: 'إلغاء',
+    add_item: 'إضافة عنصر',
+    update_item: 'تحديث',
+    recipe_builder: 'منشئ الوصفات',
+    calculator: 'الحاسبة',
+    recipe_label: 'اسم الوصفة',
+    yield_pcs: 'الإنتاج (قطع)',
+    labor_cost: 'تكلفة العمالة',
+    packaging_pc: 'التغليف / قطعة',
+    ingredients: 'المكونات',
+    generate_calculation: 'إجراء الحساب',
+    cogs_per_piece: 'التكلفة المباشرة للقطعة',
+    breakdown: 'التفاصيل',
+    weights_in_gr: 'الأوزان بالغرام',
+    ingredient_subtotal: 'إجمالي المكونات',
+    operational_detail: 'التفاصيل التشغيلية',
+    packaging: 'التغليف',
+    labor_capex: 'العمالة / النفقات',
+    total_batch_cost: 'إجمالي تكلفة الدفعة',
+    unit_summary: 'ملخص الوحدة',
+    cogs_per_unit: 'التكلفة لكل وحدة',
+    profit_tier: 'مستوى الربح',
+    margin: 'الهامش',
+    archive_recipe: 'أرشفة الوصفة',
+    search_placeholder: 'البحث عن عناصر المخزون...',
+    language: 'اللغة',
+    business_health: 'صحة العمل',
+    export_report: 'تصدير التقرير',
+    send_to_email: 'إرسال إلى البريد الإلكتروني',
+    google_sheet_link: 'رابط جدول بيانات جوجل',
+    sending: 'جاري الإرسال...',
+    success: 'تم بنجاح!',
+    error: 'خطأ',
+    enter_email: 'أدخل بريدك الإلكتروني',
+    connect_google: 'ربط جوجل',
+    export_options: 'خيارات التصدير',
+    spreadsheet_created: 'تم إنشاء جدول البيانات!',
+  }
+};
+
+const CURRENCIES = [
+  { code: 'AED', symbol: 'DH', decimals: 2 },
+  { code: 'AFN', symbol: '؋', decimals: 2 },
+  { code: 'ARS', symbol: '$', decimals: 2 },
+  { code: 'AUD', symbol: 'A$', decimals: 2 },
+  { code: 'BDT', symbol: '৳', decimals: 2 },
+  { code: 'BRL', symbol: 'R$', decimals: 2 },
+  { code: 'CAD', symbol: 'C$', decimals: 2 },
+  { code: 'CHF', symbol: 'Fr', decimals: 2 },
+  { code: 'CLP', symbol: '$', decimals: 0 },
+  { code: 'CNY', symbol: '¥', decimals: 2 },
+  { code: 'COP', symbol: '$', decimals: 2 },
+  { code: 'CZK', symbol: 'Kč', decimals: 2 },
+  { code: 'DKK', symbol: 'kr', decimals: 2 },
+  { code: 'DOP', symbol: 'RD$', decimals: 2 },
+  { code: 'EGP', symbol: 'E£', decimals: 2 },
+  { code: 'EUR', symbol: '€', decimals: 2 },
+  { code: 'GBP', symbol: '£', decimals: 2 },
+  { code: 'HKD', symbol: 'HK$', decimals: 2 },
+  { code: 'HUF', symbol: 'Ft', decimals: 0 },
+  { code: 'IDR', symbol: 'Rp', decimals: 0 },
+  { code: 'ILS', symbol: '₪', decimals: 2 },
+  { code: 'INR', symbol: '₹', decimals: 2 },
+  { code: 'IQD', symbol: 'ع.د', decimals: 3 },
+  { code: 'IRR', symbol: '﷼', decimals: 2 },
+  { code: 'ISK', symbol: 'kr', decimals: 0 },
+  { code: 'JMD', symbol: 'J$', decimals: 2 },
+  { code: 'JOD', symbol: 'JD', decimals: 3 },
+  { code: 'JPY', symbol: '¥', decimals: 0 },
+  { code: 'KES', symbol: 'KSh', decimals: 2 },
+  { code: 'KHR', symbol: '៛', decimals: 2 },
+  { code: 'KRW', symbol: '₩', decimals: 0 },
+  { code: 'KWD', symbol: 'KD', decimals: 3 },
+  { code: 'LBP', symbol: 'L£', decimals: 2 },
+  { code: 'LKR', symbol: '₨', decimals: 2 },
+  { code: 'MAD', symbol: 'DH', decimals: 2 },
+  { code: 'MXN', symbol: '$', decimals: 2 },
+  { code: 'MYR', symbol: 'RM', decimals: 2 },
+  { code: 'NOK', symbol: 'kr', decimals: 2 },
+  { code: 'NZD', symbol: 'NZ$', decimals: 2 },
+  { code: 'OMR', symbol: 'RO', decimals: 3 },
+  { code: 'PEN', symbol: 'S/', decimals: 2 },
+  { code: 'PHP', symbol: '₱', decimals: 2 },
+  { code: 'PKR', symbol: '₨', decimals: 2 },
+  { code: 'PLN', symbol: 'zł', decimals: 2 },
+  { code: 'PYG', symbol: '₲', decimals: 0 },
+  { code: 'QAR', symbol: 'QR', decimals: 2 },
+  { code: 'RUB', symbol: '₽', decimals: 2 },
+  { code: 'SAR', symbol: 'SR', decimals: 2 },
+  { code: 'SEK', symbol: 'kr', decimals: 2 },
+  { code: 'SGD', symbol: 'S$', decimals: 2 },
+  { code: 'THB', symbol: '฿', decimals: 2 },
+  { code: 'TND', symbol: 'DT', decimals: 3 },
+  { code: 'TRY', symbol: '₺', decimals: 2 },
+  { code: 'TWD', symbol: 'NT$', decimals: 2 },
+  { code: 'UAH', symbol: '₴', decimals: 2 },
+  { code: 'USD', symbol: '$', decimals: 2 },
+  { code: 'VND', symbol: '₫', decimals: 0 },
+  { code: 'ZAR', symbol: 'R', decimals: 2 },
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'ingredients' | 'recipes'>('dashboard');
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [currencyCode, setCurrencyCode] = useState('IDR');
+  const [lang, setLang] = useState<keyof typeof TRANSLATIONS>('en');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const t = useMemo(() => TRANSLATIONS[lang], [lang]);
+
+  const currency = useMemo(() => 
+    CURRENCIES.find(c => c.code === currencyCode) || CURRENCIES[0], 
+  [currencyCode]);
 
   // Local Storage Loading
   useEffect(() => {
     const savedIngredients = localStorage.getItem(STORAGE_INGREDIENTS);
     const savedRecipes = localStorage.getItem(STORAGE_RECIPES);
+    const savedCurrency = localStorage.getItem(STORAGE_CURRENCY);
+    const savedLang = localStorage.getItem(STORAGE_LANG) as keyof typeof TRANSLATIONS;
+    
     if (savedIngredients) setIngredients(JSON.parse(savedIngredients));
     if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
+    if (savedCurrency) setCurrencyCode(savedCurrency);
+    if (savedLang && TRANSLATIONS[savedLang]) setLang(savedLang);
   }, []);
+
+  // Set document direction for Arabic
+  useEffect(() => {
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   // Sync to local storage
   useEffect(() => {
@@ -47,6 +361,21 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_RECIPES, JSON.stringify(recipes));
   }, [recipes]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_CURRENCY, currencyCode);
+  }, [currencyCode]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_LANG, lang);
+  }, [lang]);
+
+  const formatPrice = (price: number) => {
+    return `${currency.symbol} ${price.toLocaleString(undefined, {
+      minimumFractionDigits: currency.decimals,
+      maximumFractionDigits: currency.decimals,
+    })}`;
+  };
 
   // Ingredient Helpers
   const addIngredient = (name: string, totalWeight: number, totalPrice: number) => {
@@ -120,7 +449,43 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
+    <div className="min-h-screen pb-20 md:pb-0 relative">
+      {/* Global Language Dropdown - Top Right */}
+      <div className={`fixed top-6 ${lang === 'ar' ? 'left-6' : 'right-6'} z-[60]`}>
+        <div className="relative group">
+          <button className="flex items-center gap-2 bg-white border-2 border-bakery-wheat px-3 py-2 rounded-xl shadow-sm hover:border-bakery-accent transition-all cursor-pointer">
+            <Globe size={16} className="text-bakery-accent" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-bakery-brown">
+              {lang === 'en' && '🇺🇸 EN'}
+              {lang === 'id' && '🇮🇩 ID'}
+              {lang === 'ar' && '🇸🇦 AR'}
+            </span>
+            <ChevronDown size={14} className="text-bakery-wheat group-hover:text-bakery-accent transition-colors" />
+          </button>
+          
+          <div className={`absolute top-full mt-2 ${lang === 'ar' ? 'left-0' : 'right-0'} bg-white border-2 border-bakery-wheat rounded-xl shadow-xl py-2 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50`}>
+            <button 
+              onClick={() => setLang('en')}
+              className={`w-full px-4 py-2 text-left text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'en' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+            >
+              🇺🇸 English
+            </button>
+            <button 
+              onClick={() => setLang('id')}
+              className={`w-full px-4 py-2 text-left text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'id' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+            >
+              🇮🇩 Indonesia
+            </button>
+            <button 
+              onClick={() => setLang('ar')}
+              className={`w-full px-4 py-2 text-left text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'ar' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+            >
+              🇸🇦 العربية
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row min-h-screen">
         {/* Sidebar / Navigation */}
         <nav className="w-full md:w-64 bg-bakery-brown text-white p-8 sticky top-0 z-50 md:h-screen shrink-0 border-r-8 border-bakery-wheat md:border-r-0">
@@ -134,29 +499,29 @@ export default function App() {
               active={activeTab === 'dashboard'} 
               onClick={() => setActiveTab('dashboard')}
               icon={<LayoutDashboard size={18} />}
-              label="Dashboard"
+              label={t.dashboard}
             />
             <NavButton 
               active={activeTab === 'ingredients'} 
               onClick={() => setActiveTab('ingredients')}
               icon={<Scale size={18} />}
-              label="Inventory"
+              label={t.inventory}
             />
             <NavButton 
               active={activeTab === 'recipes'} 
               onClick={() => setActiveTab('recipes')}
               icon={<ClipboardList size={18} />}
-              label="Recipes"
+              label={t.recipes}
             />
           </div>
 
           <div className="mt-auto hidden md:block pt-10">
             <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-[10px] uppercase font-bold text-bakery-wheat/40 mb-2">Business Health</p>
+              <p className="text-[10px] uppercase font-bold text-bakery-wheat/40 mb-2">{t.business_health}</p>
               <div className="flex justify-between items-end">
                 <div>
                   <p className="text-xl font-bold">{recipes.length}</p>
-                  <p className="text-[10px] text-bakery-wheat/60 font-medium">Active Recipes</p>
+                  <p className="text-[10px] text-bakery-wheat/60 font-medium">{t.active_recipes}</p>
                 </div>
                 <TrendingUp size={24} className="text-bakery-accent" />
               </div>
@@ -177,44 +542,44 @@ export default function App() {
               >
                 <header className="flex justify-between items-end border-b-2 border-bakery-wheat pb-6">
                   <div>
-                    <span className="bento-header">Welcome Back</span>
-                    <h2 className="text-4xl serif-italic">Bakery Dashboard</h2>
+                    <span className="bento-header">{t.welcome}</span>
+                    <h2 className="text-4xl serif-italic">{t.bakery_dashboard}</h2>
                   </div>
                   <button onClick={() => setActiveTab('recipes')} className="btn-primary">
-                    <Plus size={18} /> NEW CALCULATION
+                    <Plus size={18} /> {t.new_calculation}
                   </button>
                 </header>
 
                 <div className="grid grid-cols-12 gap-6 h-auto">
                   <div className="col-span-12 md:col-span-8 bakery-card bg-gradient-to-br from-white to-bakery-cream">
                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="serif-italic text-2xl">Recent Inventory</h3>
+                      <h3 className="serif-italic text-2xl">{t.recent_inventory}</h3>
                       <button onClick={() => setActiveTab('ingredients')} className="text-bakery-accent font-bold text-xs flex items-center gap-1 uppercase tracking-widest hover:underline">
-                        Manage <ChevronRight size={14} />
+                        {t.manage} <ChevronRight size={14} />
                       </button>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                       {ingredients.slice(0, 6).map(ing => (
                         <div key={ing.id} className="p-4 bg-bakery-cream/40 rounded-xl border border-bakery-wheat/50">
                           <p className="text-[10px] font-bold text-bakery-accent uppercase mb-1">{ing.name}</p>
-                          <p className="font-bold">Rp {getPricePerGram(ing).toFixed(2)}<span className="text-[10px] opacity-40 ml-1">/gr</span></p>
+                          <p className="font-bold">{formatPrice(getPricePerGram(ing))}<span className="text-[10px] opacity-40 ml-1">/gr</span></p>
                         </div>
                       ))}
-                      {ingredients.length === 0 && <p className="col-span-full py-10 text-center opacity-40 italic">Inventory is silent...</p>}
+                      {ingredients.length === 0 && <p className="col-span-full py-10 text-center opacity-40 italic">{t.pantry_empty}</p>}
                     </div>
                   </div>
 
                   <div className="col-span-12 md:col-span-4 bakery-card bg-bakery-brown text-white flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-4 block">Quick Stats</span>
+                      <span className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-4 block">{t.quick_stats}</span>
                       <div className="space-y-6">
                         <div>
                           <div className="text-4xl font-serif font-bold italic tracking-tight">{recipes.length}</div>
-                          <div className="text-[11px] opacity-60 uppercase font-medium">Active Recipes</div>
+                          <div className="text-[11px] opacity-60 uppercase font-medium">{t.active_recipes}</div>
                         </div>
                         <div className="border-t border-white/10 pt-4">
                           <div className="text-4xl font-serif font-bold italic tracking-tight text-bakery-wheat">{ingredients.length}</div>
-                          <div className="text-[11px] opacity-60 uppercase font-medium">Raw Ingredients</div>
+                          <div className="text-[11px] opacity-60 uppercase font-medium">{t.raw_ingredients}</div>
                         </div>
                       </div>
                     </div>
@@ -224,13 +589,13 @@ export default function App() {
 
                 <section className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="serif-italic text-2xl">Calculated Recipes</h3>
-                    <button onClick={() => setActiveTab('recipes')} className="text-bakery-accent font-bold text-xs uppercase tracking-widest hover:underline">Explore Collection</button>
+                    <h3 className="serif-italic text-2xl">{t.calculated_recipes}</h3>
+                    <button onClick={() => setActiveTab('recipes')} className="text-bakery-accent font-bold text-xs uppercase tracking-widest hover:underline">{t.explore_collection}</button>
                   </div>
                   {recipes.length === 0 ? (
                     <div className="bakery-card p-20 flex flex-col items-center justify-center text-center opacity-60 border-dashed">
-                      <p className="serif-italic text-xl mb-2">No recipes yet...</p>
-                      <button onClick={() => setActiveTab('recipes')} className="text-bakery-accent text-sm font-bold uppercase tracking-widest">Start Now</button>
+                      <p className="serif-italic text-xl mb-2">{t.no_recipes}</p>
+                      <button onClick={() => setActiveTab('recipes')} className="text-bakery-accent text-sm font-bold uppercase tracking-widest">{t.start_now}</button>
                     </div>
                   ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -238,12 +603,12 @@ export default function App() {
                         const { hppPerPc } = calculateRecipeCosts(recipe);
                         return (
                           <div key={recipe.id} className="bakery-card group hover:border-bakery-brown transition-all cursor-pointer bg-[#F7F2ED]" onClick={() => setActiveTab('recipes')}>
-                            <span className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-2 block">{recipe.yield} Pieces Yield</span>
+                            <span className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-2 block">{recipe.yield} {t.pieces_yield}</span>
                             <h4 className="serif-italic text-xl mb-4 group-hover:text-bakery-accent transition-colors">{recipe.name}</h4>
                             <div className="border-t border-bakery-wheat pt-4 flex justify-between items-end">
                               <div>
-                                <p className="text-[10px] font-bold text-bakery-brown/40 uppercase">HPP per Pc</p>
-                                <p className="text-xl font-bold">Rp {hppPerPc.toLocaleString()}</p>
+                                <p className="text-[10px] font-bold text-bakery-brown/40 uppercase">{t.cogs_per_pc}</p>
+                                <p className="text-xl font-bold">{formatPrice(hppPerPc)}</p>
                               </div>
                               <ChevronRight className="text-bakery-wheat group-hover:text-bakery-brown transition-colors" />
                             </div>
@@ -264,11 +629,25 @@ export default function App() {
                 exit={{ opacity: 0, x: -20 }}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-                  <div>
-                    <span className="bento-header">Ingredient Inventory</span>
-                    <h2 className="text-4xl serif-italic">Raw Materials</h2>
+                  <div className="flex gap-6 items-end">
+                    <div>
+                      <span className="bento-header">{t.ingredient_inventory}</span>
+                      <h2 className="text-4xl serif-italic">{t.raw_materials}</h2>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase text-bakery-accent">{t.currency}</span>
+                      <select 
+                        value={currencyCode}
+                        onChange={(e) => setCurrencyCode(e.target.value)}
+                        className="py-1 px-2 text-xs font-bold border-bakery-accent/30 bg-bakery-cream"
+                      >
+                        {CURRENCIES.map(c => (
+                          <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <IngredientForm onSave={(name, weight, price) => addIngredient(name, weight, price)} />
+                  <IngredientForm onSave={(name, weight, price) => addIngredient(name, weight, price)} currency={currency} t={t} />
                 </div>
 
                 <div className="bakery-card p-0">
@@ -276,7 +655,7 @@ export default function App() {
                     <Search className="text-bakery-accent" size={20} />
                     <input 
                       type="text" 
-                      placeholder="Search inventory items..." 
+                      placeholder={t.search_placeholder} 
                       className="bg-transparent border-none p-0 focus:ring-0 w-full text-base"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -286,11 +665,11 @@ export default function App() {
                     <table className="w-full">
                       <thead className="bg-[#F7F2ED]">
                         <tr>
-                          <th className="px-6 py-4">Item Catalog</th>
-                          <th className="px-6 py-4">Total Weight</th>
-                          <th className="px-6 py-4">Purchase Price</th>
-                          <th className="px-6 py-4 uppercase">Cost / Gr</th>
-                          <th className="w-20 px-6 py-4 text-center">Action</th>
+                          <th className="px-6 py-4">{t.item_catalog}</th>
+                          <th className="px-6 py-4">{t.total_weight}</th>
+                          <th className="px-6 py-4">{t.purchase_price}</th>
+                          <th className="px-6 py-4 uppercase">{t.cost_per_gr}</th>
+                          <th className="w-20 px-6 py-4 text-center">{t.action}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#F2EDE8]">
@@ -300,10 +679,10 @@ export default function App() {
                           <tr key={ing.id} className="hover:bg-bakery-cream/40 transition-colors">
                             <td className="px-6 py-4 font-serif font-bold text-lg">{ing.name}</td>
                             <td className="px-6 py-4">{ing.totalWeight.toLocaleString()} gr</td>
-                            <td className="px-6 py-4">Rp {ing.totalPrice.toLocaleString()}</td>
+                            <td className="px-6 py-4">{formatPrice(ing.totalPrice)}</td>
                             <td className="px-6 py-4">
                               <span className="px-3 py-1 bg-bakery-accent/10 rounded-full text-bakery-accent font-bold text-xs border border-bakery-accent/20">
-                                Rp {getPricePerGram(ing).toFixed(2)}
+                                {formatPrice(getPricePerGram(ing))}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-center">
@@ -311,6 +690,8 @@ export default function App() {
                                 <IngredientForm 
                                   ingredient={ing} 
                                   onSave={(name, weight, price) => updateIngredient(ing.id, name, weight, price)} 
+                                  currency={currency}
+                                  t={t}
                                 />
                                 <button 
                                   onClick={() => removeIngredient(ing.id)}
@@ -326,7 +707,7 @@ export default function App() {
                         {ingredients.length === 0 && (
                           <tr>
                             <td colSpan={5} className="py-24 text-center serif-italic text-bakery-accent opacity-40">
-                              Your pantry is currently empty.
+                              {t.pantry_empty}
                             </td>
                           </tr>
                         )}
@@ -346,18 +727,18 @@ export default function App() {
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                   <div>
-                    <span className="bento-header">Production Management</span>
-                    <h2 className="text-4xl serif-italic">Recipe & COGS Analysis</h2>
+                    <span className="bento-header">{t.production_management}</span>
+                    <h2 className="text-4xl serif-italic">{t.recipe_cogs_analysis}</h2>
                   </div>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
                   <div className="lg:col-span-7">
-                    <RecipeForm ingredients={ingredients} onAdd={addRecipe} />
+                    <RecipeForm ingredients={ingredients} onAdd={addRecipe} formatPrice={formatPrice} currency={currency} t={t} />
                   </div>
                   
                   <div className="lg:col-span-5 space-y-6">
-                    <h3 className="serif-italic text-2xl px-2">Saved Formulas</h3>
+                    <h3 className="serif-italic text-2xl px-2">{t.saved_formulas}</h3>
                     <div className="space-y-6">
                       {recipes.map(recipe => (
                         <RecipeCard 
@@ -365,11 +746,13 @@ export default function App() {
                           recipe={recipe} 
                           onDelete={() => removeRecipe(recipe.id)}
                           costs={calculateRecipeCosts(recipe)}
+                          formatPrice={formatPrice}
+                          t={t}
                         />
                       ))}
                       {recipes.length === 0 && (
                         <div className="bakery-card p-16 text-center serif-italic text-bakery-accent opacity-40 border-dashed">
-                          Recipe collection is empty.
+                          {t.recipe_list_empty}
                         </div>
                       )}
                     </div>
@@ -419,7 +802,7 @@ function MobileNavButton({ active, onClick, icon }: { active: boolean, onClick: 
   );
 }
 
-function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight: number, price: number) => void, ingredient?: Ingredient }) {
+function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: string, weight: number, price: number) => void, ingredient?: Ingredient, currency: any, t: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({ 
     name: ingredient?.name || '', 
@@ -453,9 +836,9 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
       <button 
         onClick={() => setIsOpen(!isOpen)} 
         className={ingredient ? "p-2 text-bakery-accent hover:text-bakery-brown hover:bg-bakery-cream rounded-lg transition-all" : "btn-primary"}
-        title={ingredient ? "Edit Item" : "New Ingredient"}
+        title={ingredient ? t.edit_ingredient : t.new_ingredient}
       >
-        {ingredient ? <Pencil size={18} /> : <><Plus size={18} /> INGREDIENT</>}
+        {ingredient ? <Pencil size={18} /> : <><Plus size={18} /> {t.raw_ingredients}</>}
       </button>
 
       <AnimatePresence>
@@ -468,10 +851,10 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
           >
             <form onSubmit={handleSubmit} className="space-y-6">
               <h4 className="serif-italic border-b-2 border-bakery-wheat pb-3 mb-6">
-                {ingredient ? 'Edit Ingredient' : 'New Ingredient'}
+                {ingredient ? t.edit_ingredient : t.new_ingredient}
               </h4>
               <div className="space-y-2 text-left">
-                <label className="bento-header">Ingredient Name</label>
+                <label className="bento-header">{t.ingredient_name}</label>
                 <input 
                   type="text" 
                   autoFocus
@@ -483,7 +866,7 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
               </div>
               <div className="grid grid-cols-2 gap-4 text-left">
                 <div className="space-y-2">
-                  <label className="bento-header">Weight (gr)</label>
+                  <label className="bento-header">{t.weight}</label>
                   <input 
                     type="number" 
                     step="any"
@@ -494,7 +877,7 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="bento-header">Price (Rp)</label>
+                  <label className="bento-header">{t.price} ({currency.symbol})</label>
                   <input 
                     type="number" 
                     step="any"
@@ -506,9 +889,9 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
                 </div>
               </div>
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setIsOpen(false)} className="flex-1 btn-secondary text-[10px] uppercase tracking-widest justify-center">Cancel</button>
+                <button type="button" onClick={() => setIsOpen(false)} className="flex-1 btn-secondary text-[10px] uppercase tracking-widest justify-center">{t.cancel}</button>
                 <button type="submit" className="flex-[2] btn-primary text-[10px] uppercase tracking-widest justify-center">
-                  {ingredient ? 'Update' : 'Add Item'}
+                  {ingredient ? t.update_item : t.add_item}
                 </button>
               </div>
             </form>
@@ -519,7 +902,7 @@ function IngredientForm({ onSave, ingredient }: { onSave: (name: string, weight:
   );
 }
 
-function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: (recipe: Omit<Recipe, 'id'>) => void }) {
+function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredients: Ingredient[], onAdd: (recipe: Omit<Recipe, 'id'>) => void, formatPrice: (p: number) => string, currency: any, t: any }) {
   const [formData, setFormData] = useState({
     name: '',
     yield: '',
@@ -564,14 +947,14 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
   return (
     <form onSubmit={handleSubmit} className="bakery-card p-10 space-y-10 h-fit bg-[#FAF9F6]">
       <div className="flex flex-col gap-2 mb-6">
-        <span className="bento-header">Calculator</span>
-        <h3 className="text-3xl serif-italic">Recipe Builder</h3>
+        <span className="bento-header">{t.calculator}</span>
+        <h3 className="text-3xl serif-italic">{t.recipe_builder}</h3>
       </div>
 
       <div className="grid md:grid-cols-2 gap-10">
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="bento-header">Recipe Label</label>
+            <label className="bento-header">{t.recipe_label}</label>
             <input 
               type="text" 
               placeholder="e.g. Sourdough Loaf" 
@@ -582,7 +965,7 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="bento-header">Yield (PCS)</label>
+              <label className="bento-header">{t.yield_pcs}</label>
               <input 
                 type="number" 
                 placeholder="1" 
@@ -592,10 +975,10 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
               />
             </div>
             <div className="space-y-2">
-              <label className="bento-header">Labor Cost</label>
+              <label className="bento-header">{t.labor_cost}</label>
               <input 
                 type="number" 
-                placeholder="Rp" 
+                placeholder={currency.symbol} 
                 className="w-full"
                 value={formData.labor}
                 onChange={(e) => setFormData({ ...formData, labor: e.target.value })}
@@ -603,10 +986,10 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
             </div>
           </div>
           <div className="space-y-2">
-            <label className="bento-header">Packaging / Piece</label>
+            <label className="bento-header">{t.packaging_pc}</label>
             <input 
               type="number" 
-              placeholder="Rp" 
+              placeholder={currency.symbol} 
               className="w-full"
               value={formData.packaging}
               onChange={(e) => setFormData({ ...formData, packaging: e.target.value })}
@@ -616,7 +999,7 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
 
         <div className="space-y-4 bg-white border border-bakery-wheat p-6 rounded-2xl shadow-sm">
           <div className="flex justify-between items-center mb-2">
-            <h4 className="bento-header">Ingredients</h4>
+            <h4 className="bento-header">{t.ingredients}</h4>
             <button type="button" onClick={addIngredientToRecipe} className="bg-bakery-brown text-white p-1 rounded transition-colors">
               <Plus size={16} />
             </button>
@@ -638,7 +1021,7 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
                 <div className="flex items-center gap-1">
                   <input 
                     type="number" 
-                    placeholder="Weight" 
+                    placeholder={t.weight} 
                     className="w-20 text-xs border-none bg-bakery-cream/30 focus:ring-1 focus:ring-bakery-accent/20 rounded py-1"
                     value={item.weight || ''}
                     onChange={(e) => updateSelectedIngredient(idx, 'weight', parseFloat(e.target.value))}
@@ -655,13 +1038,22 @@ function RecipeForm({ ingredients, onAdd }: { ingredients: Ingredient[], onAdd: 
       </div>
 
       <button type="submit" className="btn-primary w-full py-4 text-sm tracking-[0.1em]">
-        <Save size={18} /> GENERATE CALCULATION
+        <Save size={18} /> {t.generate_calculation}
       </button>
     </form>
   );
 }
 
-function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () => void, costs: any }) {
+interface RecipeCardProps {
+  key?: any;
+  recipe: Recipe;
+  onDelete: () => void;
+  costs: any;
+  formatPrice: (p: number) => string;
+  t: any;
+}
+
+function RecipeCard({ recipe, onDelete, costs, formatPrice, t }: RecipeCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -678,8 +1070,8 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
         </div>
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <p className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest">HPP PER PIECE</p>
-            <p className="font-bold text-2xl text-bakery-brown">Rp {costs.hppPerPc.toLocaleString()}</p>
+            <p className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest">{t.cogs_per_piece}</p>
+            <p className="font-bold text-2xl text-bakery-brown">{formatPrice(costs.hppPerPc)}</p>
           </div>
           <motion.div animate={{ rotate: isExpanded ? 90 : 0 }}>
             <ChevronRight size={24} className="text-bakery-wheat" />
@@ -700,15 +1092,15 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
                 {/* Breakdown Section */}
                 <div className="bg-white border border-bakery-wheat rounded-2xl p-6 shadow-sm">
                   <div className="flex justify-between items-center mb-4">
-                    <h5 className="serif-italic text-lg">Breakdown</h5>
-                    <span className="text-[10px] font-bold uppercase text-bakery-accent tracking-widest">Weights in GR</span>
+                    <h5 className="serif-italic text-lg">{t.breakdown}</h5>
+                    <span className="text-[10px] font-bold uppercase text-bakery-accent tracking-widest">{t.weights_in_gr}</span>
                   </div>
                   <table className="w-full text-xs">
                     <thead className="border-b border-[#F2EDE8]">
                       <tr>
-                        <th className="pb-3 text-bakery-accent">Ingredient</th>
-                        <th className="pb-3 text-right text-bakery-accent">Weight</th>
-                        <th className="pb-3 text-right text-bakery-accent">Cost</th>
+                        <th className="pb-3 text-bakery-accent">{t.ingredients}</th>
+                        <th className="pb-3 text-right text-bakery-accent">{t.weight}</th>
+                        <th className="pb-3 text-right text-bakery-accent">{t.price}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F2EDE8]">
@@ -716,41 +1108,41 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
                         <tr key={i}>
                           <td className="py-3 font-medium text-bakery-brown">{item.name}</td>
                           <td className="py-3 text-right">{item.weight} gr</td>
-                          <td className="py-3 text-right font-bold">Rp {item.cost.toLocaleString()}</td>
+                          <td className="py-3 text-right font-bold">{formatPrice(item.cost)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   <div className="mt-4 pt-4 border-t border-bakery-brown flex justify-between items-center">
-                    <span className="serif-italic text-base">Ingredient Subtotal</span>
-                    <span className="font-bold text-lg">Rp {costs.totalIngredientCost.toLocaleString()}</span>
+                    <span className="serif-italic text-base">{t.ingredient_subtotal}</span>
+                    <span className="font-bold text-lg">{formatPrice(costs.totalIngredientCost)}</span>
                   </div>
                 </div>
 
                 {/* Summary Section */}
                 <div className="space-y-6">
                   <div className="bg-[#F7F2ED] border border-bakery-wheat rounded-2xl p-6 shadow-sm">
-                    <h5 className="bento-header mb-4">Operational Detail</h5>
+                    <h5 className="bento-header mb-4">{t.operational_detail}</h5>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm">Packaging ({recipe.yield} units)</span>
-                        <span className="font-bold">Rp {(recipe.packagingPerPc * recipe.yield).toLocaleString()}</span>
+                        <span className="text-sm">{t.packaging} ({recipe.yield} units)</span>
+                        <span className="font-bold">{formatPrice(recipe.packagingPerPc * recipe.yield)}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm italic">Labor / CapEx</span>
-                        <span className="font-bold">Rp {recipe.operationalCost.toLocaleString()}</span>
+                        <span className="text-sm italic">{t.labor_capex}</span>
+                        <span className="font-bold">{formatPrice(recipe.operationalCost)}</span>
                       </div>
                       <div className="border-t border-bakery-wheat pt-4 flex justify-between items-center">
-                        <span className="font-serif italic font-bold">Total Batch Cost</span>
-                        <span className="font-bold text-xl">Rp {costs.totalCost.toLocaleString()}</span>
+                        <span className="font-serif italic font-bold">{t.total_batch_cost}</span>
+                        <span className="font-bold text-xl">{formatPrice(costs.totalCost)}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-bakery-brown text-white rounded-2xl p-6 shadow-lg">
-                    <h5 className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-3">Unit Summary</h5>
-                    <div className="text-4xl font-serif font-bold italic tracking-tight mb-1">Rp {costs.hppPerPc.toLocaleString()}</div>
-                    <div className="text-[11px] opacity-60 uppercase font-bold tracking-widest">HPP Per Unit (Yield: {recipe.yield})</div>
+                    <h5 className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-3">{t.unit_summary}</h5>
+                    <div className="text-4xl font-serif font-bold italic tracking-tight mb-1">{formatPrice(costs.hppPerPc)}</div>
+                    <div className="text-[11px] opacity-60 uppercase font-bold tracking-widest">{t.cogs_per_unit} ({t.pieces_yield}: {recipe.yield})</div>
                   </div>
                 </div>
               </div>
@@ -759,9 +1151,9 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {costs.margins.map((margin: any) => (
                   <div key={margin.percentage} className={`bakery-card p-6 ${margin.percentage === 50 ? 'bg-white ring-2 ring-bakery-brown' : 'bg-white'}`}>
-                    <h2 className="bento-header mb-2">{margin.percentage}% Profit Tier</h2>
-                    <div className="text-3xl font-serif font-bold italic mb-1 text-bakery-brown">Rp {Math.round(margin.price).toLocaleString()}</div>
-                    <div className="text-[11px] text-bakery-accent font-bold truncate">Margin: Rp {Math.round(margin.price - costs.hppPerPc).toLocaleString()} / piece</div>
+                    <h2 className="bento-header mb-2">{margin.percentage}% {t.profit_tier}</h2>
+                    <div className="text-3xl font-serif font-bold italic mb-1 text-bakery-brown">{formatPrice(Math.round(margin.price))}</div>
+                    <div className="text-[11px] text-bakery-accent font-bold truncate">{t.margin}: {formatPrice(Math.round(margin.price - costs.hppPerPc))} / piece</div>
                     <div className="w-full bg-[#F2EDE8] h-1.5 mt-4 rounded-full overflow-hidden">
                       <div className="bg-bakery-accent h-full transition-all" style={{ width: `${margin.percentage}%` }}></div>
                     </div>
@@ -769,9 +1161,10 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
                 ))}
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-4 gap-4">
+                <ExportButton recipe={recipe} costs={costs} t={t} />
                 <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="flex items-center gap-2 text-bakery-accent hover:text-red-500 text-[10px] font-bold uppercase tracking-widest transition-colors">
-                  <Trash2 size={16} /> Archive Recipe
+                  <Trash2 size={16} /> {t.archive_recipe}
                 </button>
               </div>
             </div>
@@ -779,6 +1172,192 @@ function RecipeCard({ recipe, onDelete, costs }: { recipe: Recipe, onDelete: () 
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function ExportButton({ recipe, costs, t }: { recipe: Recipe, costs: any, t: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Basic origin check for security
+      if (!event.origin.endsWith('.run.app') && !event.origin.includes('localhost')) return;
+      
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        handleExport();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [recipe, costs]);
+
+  const handleExport = async () => {
+    setLoading(true);
+    setStatus('idle');
+    try {
+      const response = await fetch('/api/export/sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipe, costs }),
+      });
+
+      if (response.status === 401) {
+        const { url } = await (await fetch('/api/auth/google/url')).json();
+        window.open(url, 'google_auth', 'width=600,height=700');
+        setLoading(false);
+        return;
+      }
+
+      if (!response.ok) throw new Error('Export failed');
+      
+      const { url } = await response.json();
+      setSheetUrl(url);
+      setStatus('success');
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!email || !sheetUrl) return;
+    setLoading(true);
+    setStatus('sending');
+    try {
+      const response = await fetch('/api/export/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: email,
+          subject: `Bakery Report: ${recipe.name}`,
+          body: `Here is the detailed cost breakdown for ${recipe.name}.`,
+          spreadsheetUrl: sheetUrl
+        }),
+      });
+      if (!response.ok) throw new Error('Email failed');
+      setStatus('success');
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button 
+        onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
+        className="flex items-center gap-2 text-bakery-accent hover:text-bakery-brown text-[10px] font-bold uppercase tracking-widest transition-colors"
+      >
+        <Share2 size={16} /> {t.export_report}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="absolute inset-0 bg-bakery-brown/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border border-bakery-wheat overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="serif-italic text-2xl">{t.export_options}</h3>
+                <button onClick={() => setIsOpen(false)} className="text-bakery-accent hover:bg-bakery-cream p-1 rounded-full"><Plus className="rotate-45" size={24} /></button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="bg-bakery-cream/30 p-6 rounded-2xl border border-bakery-wheat">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-white p-3 rounded-xl shadow-sm">
+                      <FileSpreadsheet className="text-bakery-accent" size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-bakery-brown">Google Sheets</h4>
+                      <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Create dynamic report</p>
+                    </div>
+                  </div>
+                  
+                  {!sheetUrl ? (
+                    <button 
+                      onClick={handleExport}
+                      disabled={loading}
+                      className="btn-primary w-full justify-center text-xs tracking-widest bg-bakery-brown text-white py-3"
+                    >
+                      {loading ? <Loader2 className="animate-spin" size={16} /> : <><Globe size={16} /> {t.connect_google}</>}
+                    </button>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between bg-green-50 px-4 py-2 rounded-xl border border-green-100">
+                        <span className="text-[10px] font-bold text-green-600 uppercase">{t.spreadsheet_created}</span>
+                        <a href={sheetUrl} target="_blank" rel="noopener noreferrer" className="text-bakery-accent flex items-center gap-1 text-[10px] font-bold hover:underline">
+                          VIEW <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {sheetUrl && (
+                  <div className="bg-[#F7F2ED] p-6 rounded-2xl border border-bakery-wheat">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="bg-white p-3 rounded-xl shadow-sm">
+                        <Mail className="text-bakery-accent" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-bakery-brown">{t.send_to_email}</h4>
+                        <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Share with stakeholders</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <input 
+                        type="email" 
+                        placeholder={t.enter_email}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full bg-white border-bakery-wheat rounded-xl py-2 px-4 text-sm focus:ring-2 focus:ring-bakery-accent/30 outline-none"
+                      />
+                      <button 
+                        onClick={handleSendEmail}
+                        disabled={loading || !email}
+                        className="btn-primary w-full justify-center text-xs tracking-widest bg-bakery-brown text-white py-3 disabled:opacity-50"
+                      >
+                        {loading && status === 'sending' ? <Loader2 className="animate-spin" size={16} /> : t.send_to_email}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {status === 'success' && !loading && (
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-green-600 font-bold text-[10px] uppercase tracking-widest">
+                    {t.success}
+                  </motion.p>
+                )}
+                {status === 'error' && (
+                  <p className="text-center text-red-500 font-bold text-[10px] uppercase tracking-widest">
+                    {t.error}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
