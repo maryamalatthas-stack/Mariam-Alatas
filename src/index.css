@@ -19,7 +19,7 @@
 }
 
 .bakery-card {
-  @apply bg-white border border-bakery-wheat rounded-2xl shadow-sm overflow-hidden p-6;
+  @apply bg-white border border-bakery-wheat rounded-2xl shadow-sm overflow-hidden p-4 md:p-6;
 }
 
 .btn-primary {
