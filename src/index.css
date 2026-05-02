@@ -34,6 +34,10 @@ input, select {
   @apply border border-bakery-wheat rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-bakery-accent/30 focus:border-bakery-accent transition-all bg-white text-sm;
 }
 
+input::placeholder {
+  opacity: 0.6;
+}
+
 th {
   @apply text-left pb-3 font-bold uppercase text-[10px] tracking-wider text-bakery-accent;
 }
@@ -49,3 +53,5 @@ td {
 .serif-italic {
   @apply font-serif italic font-bold;
 }
+
+/* Ensure language selector is always fixed to viewport and doesn't move with content */

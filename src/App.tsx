@@ -346,6 +346,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'ingredients' | 'recipes'>('dashboard');
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [currencyCode, setCurrencyCode] = useState('IDR');
   const [lang, setLang] = useState<keyof typeof TRANSLATIONS>('en');
   const [searchQuery, setSearchQuery] = useState('');
@@ -435,8 +436,17 @@ export default function App() {
     setRecipes([...recipes, { ...recipe, id: crypto.randomUUID() }]);
   };
 
+  const updateRecipe = (id: string, updatedData: Omit<Recipe, 'id'>) => {
+    setRecipes(recipes.map(r => r.id === id ? { ...updatedData, id } : r));
+    setEditingRecipe(null);
+  };
+
   const removeRecipe = (id: string) => {
     setRecipes(recipes.filter(r => r.id !== id));
+  };
+
+  const updateRecipeYield = (id: string, newYield: number) => {
+    setRecipes(recipes.map(r => r.id === id ? { ...r, yield: newYield } : r));
   };
 
   // Calculations
@@ -473,10 +483,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 relative">
-      {/* Global Language Dropdown - Top Right */}
-      <div className={`fixed top-6 ${lang === 'ar' ? 'left-6' : 'right-6'} z-[60]`}>
+      <div className="absolute top-4 right-6 rtl:right-auto rtl:left-6 z-[101]">
         <div className="relative group">
-          <button className="flex items-center gap-2 bg-white border-2 border-bakery-wheat px-3 py-2 rounded-xl shadow-sm hover:border-bakery-accent transition-all cursor-pointer">
+          <button className="flex items-center gap-2 bg-white border-2 border-bakery-wheat px-3 py-2 rounded-xl hover:border-bakery-accent transition-all cursor-pointer">
             <Globe size={16} className="text-bakery-accent" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-bakery-brown">
               {lang === 'en' && '🇺🇸 EN'}
@@ -486,7 +495,7 @@ export default function App() {
             <ChevronDown size={14} className="text-bakery-wheat group-hover:text-bakery-accent transition-colors" />
           </button>
           
-          <div className={`absolute top-full mt-2 ${lang === 'ar' ? 'left-0' : 'right-0'} bg-white border-2 border-bakery-wheat rounded-xl shadow-xl py-2 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50`}>
+          <div className={`absolute top-full mt-2 ${lang === 'ar' ? 'left-0' : 'right-0'} bg-white border-2 border-bakery-wheat rounded-xl shadow-lg py-2 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[10000]`}>
             <button 
               onClick={() => setLang('en')}
               className={`w-full px-4 py-2 text-left text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'en' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
@@ -757,7 +766,16 @@ export default function App() {
 
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
                   <div className="lg:col-span-7">
-                    <RecipeForm ingredients={ingredients} onAdd={addRecipe} formatPrice={formatPrice} currency={currency} t={t} />
+            <RecipeForm 
+                      ingredients={ingredients} 
+                      onAdd={addRecipe} 
+                      onUpdate={updateRecipe}
+                      editingRecipe={editingRecipe}
+                      onCancelEdit={() => setEditingRecipe(null)}
+                      formatPrice={formatPrice} 
+                      currency={currency} 
+                      t={t} 
+                    />
                   </div>
                   
                   <div className="lg:col-span-5 space-y-6">
@@ -768,6 +786,11 @@ export default function App() {
                           key={recipe.id} 
                           recipe={recipe} 
                           onDelete={() => removeRecipe(recipe.id)}
+                          onUpdateYield={(val) => updateRecipeYield(recipe.id, val)}
+                          onEdit={() => {
+                            setEditingRecipe(recipe);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
                           costs={calculateRecipeCosts(recipe)}
                           formatPrice={formatPrice}
                           t={t}
@@ -894,10 +917,16 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
                   <input 
                     type="number" 
                     step="any"
+                    min="0"
                     placeholder="1000" 
                     className="w-full"
                     value={formData.weight}
-                    onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || parseFloat(val) >= 0) {
+                        setFormData({ ...formData, weight: val });
+                      }
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -905,10 +934,16 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
                   <input 
                     type="number" 
                     step="any"
+                    min="0"
                     placeholder="25000" 
                     className="w-full"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || parseFloat(val) >= 0) {
+                        setFormData({ ...formData, price: val });
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -926,7 +961,16 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
   );
 }
 
-function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredients: Ingredient[], onAdd: (recipe: Omit<Recipe, 'id'>) => void, formatPrice: (p: number) => string, currency: any, t: any }) {
+function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit, formatPrice, currency, t }: { 
+  ingredients: Ingredient[], 
+  onAdd: (recipe: Omit<Recipe, 'id'>) => void, 
+  onUpdate: (id: string, recipe: Omit<Recipe, 'id'>) => void,
+  editingRecipe: Recipe | null,
+  onCancelEdit: () => void,
+  formatPrice: (p: number) => string, 
+  currency: any, 
+  t: any 
+}) {
   const [formData, setFormData] = useState({
     name: '',
     yield: '',
@@ -934,6 +978,20 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
     labor: '',
     selectedIngredients: [] as RecipeIngredient[]
   });
+
+  useEffect(() => {
+    if (editingRecipe) {
+      setFormData({
+        name: editingRecipe.name,
+        yield: editingRecipe.yield.toString(),
+        packaging: editingRecipe.packagingPerPc.toString(),
+        labor: editingRecipe.operationalCost.toString(),
+        selectedIngredients: [...editingRecipe.ingredients]
+      });
+    } else {
+      setFormData({ name: '', yield: '', packaging: '', labor: '', selectedIngredients: [] });
+    }
+  }, [editingRecipe]);
 
   const addIngredientToRecipe = () => {
     setFormData({
@@ -955,24 +1013,52 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
     });
   };
 
+  const currentCosts = useMemo(() => {
+    if (!formData.name && formData.selectedIngredients.length === 0) return null;
+    
+    let totalIngredientCost = 0;
+    formData.selectedIngredients.forEach(ri => {
+      const ingredient = ingredients.find(ing => ing.id === ri.ingredientId);
+      if (ingredient) {
+        const pricePerGram = ingredient.totalPrice / (ingredient.totalWeight || 1);
+        totalIngredientCost += pricePerGram * (ri.weight || 0);
+      }
+    });
+
+    const yieldVal = parseFloat(formData.yield) || 1;
+    const packaging = parseFloat(formData.packaging) || 0;
+    const labor = parseFloat(formData.labor) || 0;
+    
+    const totalCost = totalIngredientCost + labor + (packaging * yieldVal);
+    const hppPerPc = totalCost / yieldVal;
+
+    return { totalCost, hppPerPc };
+  }, [formData, ingredients]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || formData.selectedIngredients.length === 0) return;
-    onAdd({
+    const recipeData = {
       name: formData.name,
       yield: parseFloat(formData.yield) || 1,
       packagingPerPc: parseFloat(formData.packaging) || 0,
       operationalCost: parseFloat(formData.labor) || 0,
       ingredients: formData.selectedIngredients.filter(si => si.ingredientId && si.weight > 0)
-    });
+    };
+
+    if (editingRecipe) {
+      onUpdate(editingRecipe.id, recipeData);
+    } else {
+      onAdd(recipeData);
+    }
     setFormData({ name: '', yield: '', packaging: '', labor: '', selectedIngredients: [] });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bakery-card p-10 space-y-10 h-fit bg-[#FAF9F6]">
+    <form onSubmit={handleSubmit} className={`bakery-card p-10 space-y-10 h-fit transition-all ${editingRecipe ? 'ring-2 ring-bakery-accent border-bakery-accent' : 'bg-[#FAF9F6]'}`}>
       <div className="flex flex-col gap-2 mb-6">
         <span className="bento-header">{t.calculator}</span>
-        <h3 className="text-3xl serif-italic">{t.recipe_builder}</h3>
+        <h3 className="text-3xl serif-italic">{editingRecipe ? 'Edit Recipe' : t.recipe_builder}</h3>
       </div>
 
       <div className="grid md:grid-cols-2 gap-10">
@@ -992,20 +1078,32 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
               <label className="bento-header">{t.yield_pcs}</label>
               <input 
                 type="number" 
+                min="0"
                 placeholder="1" 
                 className="w-full"
                 value={formData.yield}
-                onChange={(e) => setFormData({ ...formData, yield: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || parseFloat(val) >= 0) {
+                    setFormData({ ...formData, yield: val });
+                  }
+                }}
               />
             </div>
             <div className="space-y-2">
               <label className="bento-header">{t.labor_cost}</label>
               <input 
                 type="number" 
+                min="0"
                 placeholder={currency.symbol} 
                 className="w-full"
                 value={formData.labor}
-                onChange={(e) => setFormData({ ...formData, labor: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || parseFloat(val) >= 0) {
+                    setFormData({ ...formData, labor: val });
+                  }
+                }}
               />
             </div>
           </div>
@@ -1013,10 +1111,16 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
             <label className="bento-header">{t.packaging_pc}</label>
             <input 
               type="number" 
+              min="0"
               placeholder={currency.symbol} 
               className="w-full"
               value={formData.packaging}
-              onChange={(e) => setFormData({ ...formData, packaging: e.target.value })}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '' || parseFloat(val) >= 0) {
+                  setFormData({ ...formData, packaging: val });
+                }
+              }}
             />
           </div>
         </div>
@@ -1045,10 +1149,16 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
                 <div className="flex items-center gap-1">
                   <input 
                     type="number" 
+                    min="0"
                     placeholder={t.weight} 
                     className="w-20 text-xs border-none bg-bakery-cream/30 focus:ring-1 focus:ring-bakery-accent/20 rounded py-1"
                     value={item.weight || ''}
-                    onChange={(e) => updateSelectedIngredient(idx, 'weight', parseFloat(e.target.value))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || parseFloat(val) >= 0) {
+                        updateSelectedIngredient(idx, 'weight', parseFloat(val) || 0);
+                      }
+                    }}
                   />
                   <span className="text-[10px] font-bold text-bakery-accent">GR</span>
                 </div>
@@ -1061,9 +1171,33 @@ function RecipeForm({ ingredients, onAdd, formatPrice, currency, t }: { ingredie
         </div>
       </div>
 
-      <button type="submit" className="btn-primary w-full py-4 text-sm tracking-[0.1em]">
-        <Save size={18} /> {t.generate_calculation}
-      </button>
+      {currentCosts && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-6 bg-bakery-brown text-white rounded-2xl flex justify-between items-center shadow-lg"
+        >
+          <div>
+            <p className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-1">{t.cogs_per_piece}</p>
+            <p className="text-3xl font-serif font-bold italic tracking-tight">{formatPrice(currentCosts.hppPerPc)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] uppercase font-bold text-bakery-wheat/40 mb-1">{t.total_batch_cost}</p>
+            <p className="text-xl font-bold text-bakery-wheat">{formatPrice(currentCosts.totalCost)}</p>
+          </div>
+        </motion.div>
+      )}
+
+      <div className="flex gap-4">
+        <button type="submit" className="btn-primary flex-1 py-4 text-sm tracking-[0.1em]">
+          <Save size={18} /> {editingRecipe ? t.update_item : t.generate_calculation}
+        </button>
+        {editingRecipe && (
+          <button type="button" onClick={onCancelEdit} className="btn-secondary py-4 text-sm tracking-[0.1em]">
+            {t.cancel}
+          </button>
+        )}
+      </div>
     </form>
   );
 }
@@ -1072,22 +1206,35 @@ interface RecipeCardProps {
   key?: any;
   recipe: Recipe;
   onDelete: () => void;
+  onEdit: () => void;
+  onUpdateYield: (val: number) => void;
   costs: any;
   formatPrice: (p: number) => string;
   t: any;
   currency: any;
 }
 
-function RecipeCard({ recipe, onDelete, costs, formatPrice, t, currency }: RecipeCardProps) {
+function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPrice, t, currency }: RecipeCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className={`bakery-card transition-all p-0 ${isExpanded ? 'ring-2 ring-bakery-brown' : 'hover:border-bakery-brown hover:shadow-md'}`}>
       <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex gap-4 items-center">
-          <div className="bg-bakery-wheat/30 px-3 py-1 rounded-lg text-right">
-            <div className="text-[10px] uppercase font-bold text-bakery-accent tracking-tighter">Yield {recipe.yield}</div>
-            <div className="font-serif font-bold italic text-sm">{recipe.name.split(' ')[0]}</div>
+          <div className="bg-bakery-wheat/30 px-3 py-1 rounded-lg text-right min-w-[60px]">
+            <div className="text-[10px] uppercase font-bold text-bakery-accent tracking-tighter leading-none mb-1">Yield</div>
+            <input 
+              type="number"
+              min="1"
+              value={recipe.yield}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (val >= 1) onUpdateYield(val);
+                else if (e.target.value === '') onUpdateYield(0);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-transparent border-none p-0 text-right font-serif font-bold italic text-sm w-full focus:ring-0"
+            />
           </div>
           <div>
             <h4 className="serif-italic text-xl">{recipe.name}</h4>
@@ -1167,7 +1314,21 @@ function RecipeCard({ recipe, onDelete, costs, formatPrice, t, currency }: Recip
                   <div className="bg-bakery-brown text-white rounded-2xl p-6 shadow-lg">
                     <h5 className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-3">{t.unit_summary}</h5>
                     <div className="text-4xl font-serif font-bold italic tracking-tight mb-1">{formatPrice(costs.hppPerPc)}</div>
-                    <div className="text-[11px] opacity-60 uppercase font-bold tracking-widest">{t.cogs_per_unit} ({t.pieces_yield}: {recipe.yield})</div>
+                    <div className="flex items-center gap-2 text-[11px] opacity-60 uppercase font-bold tracking-widest">
+                      <span>{t.cogs_per_unit} ({t.pieces_yield}:</span>
+                      <input 
+                        type="number"
+                        min="1"
+                        value={recipe.yield}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (val >= 1) onUpdateYield(val);
+                          else if (e.target.value === '') onUpdateYield(0);
+                        }}
+                        className="bg-white/10 border-none p-0 w-10 text-center focus:ring-0 rounded"
+                      />
+                      <span>)</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1188,6 +1349,9 @@ function RecipeCard({ recipe, onDelete, costs, formatPrice, t, currency }: Recip
 
               <div className="flex justify-end pt-4 gap-4">
                 <ExportButton recipe={recipe} costs={costs} t={t} currency={currency} />
+                <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="flex items-center gap-2 text-bakery-accent hover:text-bakery-brown text-[10px] font-bold uppercase tracking-widest transition-colors">
+                  <Pencil size={16} /> {t.manage}
+                </button>
                 <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="flex items-center gap-2 text-bakery-accent hover:text-red-500 text-[10px] font-bold uppercase tracking-widest transition-colors">
                   <Trash2 size={16} /> {t.archive_recipe}
                 </button>

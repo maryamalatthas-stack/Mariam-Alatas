@@ -16,6 +16,8 @@ if 'ingredients' not in st.session_state:
     ]
 if 'recipes' not in st.session_state:
     st.session_state.recipes = []
+if 'editing_recipe' not in st.session_state:
+    st.session_state.editing_recipe = None
 
 # --- CURRENCIES ---
 CURRENCIES = {
@@ -119,6 +121,13 @@ st.markdown("""
     }
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] label, [data-testid="stSidebar"] p {
         color: #FAF9F6 !important;
+    }
+
+    [data-testid="stHeader"] {
+        background-color: rgba(250, 249, 246, 0.95) !important;
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #E2D1C3;
+        z-index: 999;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -348,41 +357,62 @@ with tab_inv:
 with tab_rec:
     st.markdown(f"<div class='serif-italic' style='font-size: 2.5rem; margin-bottom: 2rem;'>{t['recipe_builder']}</div>", unsafe_allow_html=True)
     
-    # NEW RECIPE FORM
+    # NEW/EDIT RECIPE FORM
     with st.container():
-        st.markdown("<div class='bakery-card' style='background: #FAF9F6;'>", unsafe_allow_html=True)
+        edit_rec = st.session_state.get('editing_recipe')
+        st.markdown(f"<div class='bakery-card' style='background: {'#FFF9F2' if edit_rec else '#FAF9F6'}; border: {'2px solid #A68A6B' if edit_rec else '1px solid #E6D5C3'}'>", unsafe_allow_html=True)
         with st.form("builder_form"):
-            st.markdown(f"#### {t['calculator']}")
+            st.markdown(f"#### {t['calculator'] if not edit_rec else 'Edit Recipe Analysis'}")
             row1_c1, row1_c2 = st.columns([2, 1])
-            with row1_c1: rec_name = st.text_input(t['recipe_label'], placeholder="e.g. Artisan Baguette")
-            with row1_c2: rec_yield = st.number_input(t['yield'], min_value=1, value=1)
+            with row1_c1: rec_name = st.text_input(t['recipe_label'], value=edit_rec['name'] if edit_rec else "", placeholder="e.g. Artisan Baguette")
+            with row1_c2: rec_yield = st.number_input(t['yield'], min_value=1, value=int(edit_rec['yield']) if edit_rec else 1)
             
             row2_c1, row2_c2 = st.columns(2)
-            with row2_c1: rec_labor = st.number_input(t['labor'], min_value=0.0, step=1000.0)
-            with row2_c2: rec_pkg = st.number_input(t['packaging'], min_value=0.0, step=100.0)
+            with row2_c1: rec_labor = st.number_input(t['labor'], min_value=0.0, step=1000.0, value=float(edit_rec['labor']) if edit_rec else 0.0)
+            with row2_c2: rec_pkg = st.number_input(t['packaging'], min_value=0.0, step=100.0, value=float(edit_rec['packaging']) if edit_rec else 0.0)
             
             st.markdown(f"**{t['ingredients']}**")
             current_selections = []
             if st.session_state.ingredients:
                 for ing in st.session_state.ingredients:
-                    w_input = st.number_input(f"{ing['name']} (grams)", min_value=0.0, key=f"build_{ing['id']}")
+                    # Check if ingredient was in the recipe
+                    default_w = 0.0
+                    if edit_rec:
+                        matching_item = next((i for i in edit_rec['items'] if i['id'] == ing['id']), None)
+                        if matching_item:
+                            default_w = float(matching_item['weight'])
+                    
+                    w_input = st.number_input(f"{ing['name']} (grams)", min_value=0.0, value=default_w, key=f"build_{ing['id']}")
                     if w_input > 0:
                         current_selections.append({'id': ing['id'], 'weight': w_input})
             else:
                 st.info("Add ingredients to inventory first!")
             
-            if st.form_submit_button(t['save']):
-                if rec_name and current_selections:
-                    st.session_state.recipes.append({
-                        'id': str(uuid.uuid4()),
-                        'name': rec_name,
-                        'yield': rec_yield,
-                        'labor': rec_labor,
-                        'packaging': rec_pkg,
-                        'items': current_selections
-                    })
-                    st.success("Recipe Analysis Created!")
-                    st.rerun()
+            save_btn_label = t['save'] if not edit_rec else "Update Calculation"
+            col_save1, col_save2 = st.columns([3, 1])
+            with col_save1:
+                if st.form_submit_button(save_btn_label):
+                    if rec_name and current_selections:
+                        recipe_data = {
+                            'id': edit_rec['id'] if edit_rec else str(uuid.uuid4()),
+                            'name': rec_name,
+                            'yield': rec_yield,
+                            'labor': rec_labor,
+                            'packaging': rec_pkg,
+                            'items': current_selections
+                        }
+                        if edit_rec:
+                            st.session_state.recipes = [r if r['id'] != edit_rec['id'] else recipe_data for r in st.session_state.recipes]
+                            st.session_state.editing_recipe = None
+                        else:
+                            st.session_state.recipes.append(recipe_data)
+                        st.success("Recipe Analysis Updated!" if edit_rec else "Recipe Analysis Created!")
+                        st.rerun()
+            with col_save2:
+                if edit_rec:
+                    if st.form_submit_button("Cancel"):
+                        st.session_state.editing_recipe = None
+                        st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("---")
@@ -431,15 +461,22 @@ with tab_rec:
                     data=excel_file,
                     file_name=f"{recipe['name'].replace(' ', '_')}_bakery_report.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
+                    use_container_width=True,
+                    key=f"dl_{recipe['id']}"
                 )
             with ex2:
                 summary_txt = get_text_summary(recipe, res, curr['symbol'], t)
-                st.text_area(t['copy_summary'], summary_txt, height=180, help="Copy this text to email or WhatsApp")
+                st.text_area(t['copy_summary'], summary_txt, height=180, help="Copy this text to email or WhatsApp", key=f"txt_{recipe['id']}")
             
-            if st.button(f"🗑️ Delete Recipe", key=f"del_{recipe['id']}"):
-                st.session_state.recipes = [r for r in st.session_state.recipes if r['id'] != recipe['id']]
-                st.rerun()
+            action_cols = st.columns(2)
+            with action_cols[0]:
+                if st.button(f"✏️ Manage / Edit", key=f"edit_{recipe['id']}", use_container_width=True):
+                    st.session_state.editing_recipe = recipe
+                    st.rerun()
+            with action_cols[1]:
+                if st.button(f"🗑️ Delete Recipe", key=f"del_{recipe['id']}", use_container_width=True):
+                    st.session_state.recipes = [r for r in st.session_state.recipes if r['id'] != recipe['id']]
+                    st.rerun()
 
 # --- FOOTER ---
 st.markdown("---")
