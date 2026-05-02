@@ -23,8 +23,12 @@ import {
   Mail,
   FileSpreadsheet,
   ExternalLink,
-  Loader2
+  Loader2,
+  Download,
+  Copy,
+  CheckCircle2
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { motion, AnimatePresence } from 'motion/react';
 import { Ingredient, Recipe, RecipeIngredient } from './types';
 
@@ -108,6 +112,12 @@ const TRANSLATIONS = {
     connect_google: 'Connect Google',
     export_options: 'Export Options',
     spreadsheet_created: 'Spreadsheet Created!',
+    download_excel: 'Download Excel Report',
+    copy_summary: 'Copy Shareable Summary',
+    summary_copied: 'Summary Copied!',
+    pieces: 'Pieces',
+    batch_cost: 'Batch Cost',
+    hpp_unit: 'HPP / Unit',
   },
   id: {
     dashboard: 'Dasbor',
@@ -182,6 +192,12 @@ const TRANSLATIONS = {
     connect_google: 'Hubungkan Google',
     export_options: 'Opsi Ekspor',
     spreadsheet_created: 'Spreadsheet Dibuat!',
+    download_excel: 'Unduh Laporan Excel',
+    copy_summary: 'Salin Ringkasan Berbagi',
+    summary_copied: 'Ringkasan Disalin!',
+    pieces: 'Potong',
+    batch_cost: 'Biaya Batch',
+    hpp_unit: 'HPP / Unit',
   },
   ar: {
     dashboard: 'لوحة القيادة',
@@ -256,6 +272,12 @@ const TRANSLATIONS = {
     connect_google: 'ربط جوجل',
     export_options: 'خيارات التصدير',
     spreadsheet_created: 'تم إنشاء جدول البيانات!',
+    download_excel: 'تحميل تقرير Excel',
+    copy_summary: 'نسخ ملخص المشاركة',
+    summary_copied: 'تم نسخ الملخص!',
+    pieces: 'قطع',
+    batch_cost: 'تكلفة الدفعة',
+    hpp_unit: 'التكلفة / وحدة',
   }
 };
 
@@ -428,7 +450,8 @@ export default function App() {
       return {
         name: ingredient?.name || 'Unknown',
         weight: ri.weight,
-        cost
+        cost,
+        pricePerSegment: pricePerGram
       };
     });
 
@@ -748,6 +771,7 @@ export default function App() {
                           costs={calculateRecipeCosts(recipe)}
                           formatPrice={formatPrice}
                           t={t}
+                          currency={currency}
                         />
                       ))}
                       {recipes.length === 0 && (
@@ -1051,9 +1075,10 @@ interface RecipeCardProps {
   costs: any;
   formatPrice: (p: number) => string;
   t: any;
+  currency: any;
 }
 
-function RecipeCard({ recipe, onDelete, costs, formatPrice, t }: RecipeCardProps) {
+function RecipeCard({ recipe, onDelete, costs, formatPrice, t, currency }: RecipeCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -1162,7 +1187,7 @@ function RecipeCard({ recipe, onDelete, costs, formatPrice, t }: RecipeCardProps
               </div>
 
               <div className="flex justify-end pt-4 gap-4">
-                <ExportButton recipe={recipe} costs={costs} t={t} />
+                <ExportButton recipe={recipe} costs={costs} t={t} currency={currency} />
                 <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="flex items-center gap-2 text-bakery-accent hover:text-red-500 text-[10px] font-bold uppercase tracking-widest transition-colors">
                   <Trash2 size={16} /> {t.archive_recipe}
                 </button>
@@ -1175,79 +1200,75 @@ function RecipeCard({ recipe, onDelete, costs, formatPrice, t }: RecipeCardProps
   );
 }
 
-function ExportButton({ recipe, costs, t }: { recipe: Recipe, costs: any, t: any }) {
+function ExportButton({ recipe, costs, t, currency }: { recipe: Recipe, costs: any, t: any, currency: any }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Basic origin check for security
-      if (!event.origin.endsWith('.run.app') && !event.origin.includes('localhost')) return;
-      
-      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
-        handleExport();
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [recipe, costs]);
+  const formatWithCurrency = (val: number) => `${currency.symbol} ${val.toLocaleString()}`;
 
-  const handleExport = async () => {
-    setLoading(true);
-    setStatus('idle');
-    try {
-      const response = await fetch('/api/export/sheets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipe, costs }),
-      });
+  const handleDownloadExcel = () => {
+    // Sheet 1: Summary
+    const summaryData = [
+      ['Report', 'Bakery Cost Report'],
+      ['Recipe Name', recipe.name],
+      ['Date', new Date().toLocaleDateString()],
+      [''],
+      ['Production Metrics', 'Value'],
+      ['Yield (PCS)', `${recipe.yield} ${t.pieces}`],
+      [`${t.batch_cost} (${currency.symbol})`, costs.totalCost],
+      [`${t.hpp_unit} (${currency.symbol})`, costs.hppPerPc],
+      [''],
+      ['Pricing Tiers', 'Price', 'Margin'],
+      ...costs.margins.map((m: any) => [
+        `${m.percentage}% Profit Tier`,
+        m.price,
+        m.price - costs.hppPerPc
+      ])
+    ];
 
-      if (response.status === 401) {
-        const { url } = await (await fetch('/api/auth/google/url')).json();
-        window.open(url, 'google_auth', 'width=600,height=700');
-        setLoading(false);
-        return;
-      }
+    // Sheet 2: Ingredients
+    const ingredientsData = [
+      ['Ingredient Name', 'Weight (gr)', `Unit Price`, `Total Cost (${currency.symbol})`],
+      ...costs.breakdown.map((item: any) => [
+        item.name,
+        item.weight,
+        item.pricePerSegment,
+        item.cost
+      ])
+    ];
 
-      if (!response.ok) throw new Error('Export failed');
-      
-      const { url } = await response.json();
-      setSheetUrl(url);
-      setStatus('success');
-    } catch (err) {
-      console.error(err);
-      setStatus('error');
-    } finally {
-      setLoading(false);
-    }
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    const ws2 = XLSX.utils.aoa_to_sheet(ingredientsData);
+
+    XLSX.utils.book_append_sheet(wb, ws1, "Summary");
+    XLSX.utils.book_append_sheet(wb, ws2, "Ingredients");
+
+    XLSX.writeFile(wb, `${recipe.name.replace(/\s+/g, '_')}_Report.xlsx`);
   };
 
-  const handleSendEmail = async () => {
-    if (!email || !sheetUrl) return;
-    setLoading(true);
-    setStatus('sending');
-    try {
-      const response = await fetch('/api/export/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: email,
-          subject: `Bakery Report: ${recipe.name}`,
-          body: `Here is the detailed cost breakdown for ${recipe.name}.`,
-          spreadsheetUrl: sheetUrl
-        }),
-      });
-      if (!response.ok) throw new Error('Email failed');
-      setStatus('success');
-    } catch (err) {
-      console.error(err);
-      setStatus('error');
-    } finally {
-      setLoading(false);
-    }
+  const handleCopySummary = () => {
+    const text = `
+🍞 ${recipe.name.toUpperCase()} - BAKERY REPORT
+-----------------------------------
+📊 SUMMARY:
+Yield: ${recipe.yield} ${t.pieces}
+Total Batch Cost: ${formatWithCurrency(costs.totalCost)}
+COGS Per Piece: ${formatWithCurrency(costs.hppPerPc)}
+
+💰 PRICING TIERS:
+${costs.margins.map((m: any) => `- ${m.percentage}% Profit: ${formatWithCurrency(Math.round(m.price))} (Margin: ${formatWithCurrency(Math.round(m.price - costs.hppPerPc))})`).join('\n')}
+
+🛒 INGREDIENTS:
+${costs.breakdown.map((i: any) => `- ${i.name}: ${i.weight}g`).join('\n')}
+
+Generated via BakeCost Pro
+    `.trim();
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
@@ -1280,78 +1301,38 @@ function ExportButton({ recipe, costs, t }: { recipe: Recipe, costs: any, t: any
                 <button onClick={() => setIsOpen(false)} className="text-bakery-accent hover:bg-bakery-cream p-1 rounded-full"><Plus className="rotate-45" size={24} /></button>
               </div>
 
-              <div className="space-y-6">
-                <div className="bg-bakery-cream/30 p-6 rounded-2xl border border-bakery-wheat">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="bg-white p-3 rounded-xl shadow-sm">
-                      <FileSpreadsheet className="text-bakery-accent" size={24} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-bakery-brown">Google Sheets</h4>
-                      <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Create dynamic report</p>
-                    </div>
+              <div className="space-y-4">
+                <button 
+                  onClick={handleDownloadExcel}
+                  className="w-full flex items-center gap-4 p-5 bg-bakery-cream/30 hover:bg-bakery-cream transition-colors rounded-2xl border border-bakery-wheat group text-left"
+                >
+                  <div className="bg-white p-3 rounded-xl shadow-sm text-bakery-accent group-hover:scale-110 transition-transform">
+                    <Download size={24} />
                   </div>
-                  
-                  {!sheetUrl ? (
-                    <button 
-                      onClick={handleExport}
-                      disabled={loading}
-                      className="btn-primary w-full justify-center text-xs tracking-widest bg-bakery-brown text-white py-3"
-                    >
-                      {loading ? <Loader2 className="animate-spin" size={16} /> : <><Globe size={16} /> {t.connect_google}</>}
-                    </button>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center justify-between bg-green-50 px-4 py-2 rounded-xl border border-green-100">
-                        <span className="text-[10px] font-bold text-green-600 uppercase">{t.spreadsheet_created}</span>
-                        <a href={sheetUrl} target="_blank" rel="noopener noreferrer" className="text-bakery-accent flex items-center gap-1 text-[10px] font-bold hover:underline">
-                          VIEW <ExternalLink size={12} />
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {sheetUrl && (
-                  <div className="bg-[#F7F2ED] p-6 rounded-2xl border border-bakery-wheat">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
-                        <Mail className="text-bakery-accent" size={24} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-bakery-brown">{t.send_to_email}</h4>
-                        <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Share with stakeholders</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <input 
-                        type="email" 
-                        placeholder={t.enter_email}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-white border-bakery-wheat rounded-xl py-2 px-4 text-sm focus:ring-2 focus:ring-bakery-accent/30 outline-none"
-                      />
-                      <button 
-                        onClick={handleSendEmail}
-                        disabled={loading || !email}
-                        className="btn-primary w-full justify-center text-xs tracking-widest bg-bakery-brown text-white py-3 disabled:opacity-50"
-                      >
-                        {loading && status === 'sending' ? <Loader2 className="animate-spin" size={16} /> : t.send_to_email}
-                      </button>
-                    </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-bakery-brown">{t.download_excel}</h4>
+                    <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Full 2-sheet .xlsx report</p>
                   </div>
-                )}
+                </button>
 
-                {status === 'success' && !loading && (
-                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-green-600 font-bold text-[10px] uppercase tracking-widest">
-                    {t.success}
-                  </motion.p>
-                )}
-                {status === 'error' && (
-                  <p className="text-center text-red-500 font-bold text-[10px] uppercase tracking-widest">
-                    {t.error}
-                  </p>
-                )}
+                <button 
+                  onClick={handleCopySummary}
+                  className="w-full flex items-center gap-4 p-5 bg-[#F7F2ED] hover:bg-[#F2EDE8] transition-colors rounded-2xl border border-bakery-wheat group text-left"
+                >
+                  <div className="bg-white p-3 rounded-xl shadow-sm text-bakery-accent group-hover:scale-110 transition-transform">
+                    {copied ? <CheckCircle2 className="text-green-600" size={24} /> : <Copy size={24} />}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-bakery-brown">{copied ? t.summary_copied : t.copy_summary}</h4>
+                    <p className="text-[10px] text-bakery-accent uppercase font-bold tracking-widest">Text summary for Email/WA</p>
+                  </div>
+                </button>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-bakery-wheat">
+                <p className="text-[10px] text-bakery-accent font-bold uppercase tracking-[0.2em] text-center opacity-40">
+                  Secure Local Export • No Data Leaves Browser
+                </p>
               </div>
             </motion.div>
           </div>
