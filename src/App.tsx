@@ -350,6 +350,7 @@ export default function App() {
   const [currencyCode, setCurrencyCode] = useState('IDR');
   const [lang, setLang] = useState<keyof typeof TRANSLATIONS>('en');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLangOpen, setIsLangOpen] = useState(false);
 
   const t = useMemo(() => TRANSLATIONS[lang], [lang]);
 
@@ -493,37 +494,48 @@ export default function App() {
             </div>
 
             <div className="md:mt-6">
-              <div className="relative group">
-                <button className="flex items-center gap-2 bg-white/10 border border-white/20 px-2 py-1.5 md:px-3 md:py-2 rounded-xl hover:border-bakery-accent transition-all cursor-pointer">
+              <div className="relative">
+                <button 
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                  className="flex items-center gap-2 bg-white/10 border border-white/20 px-2 py-1.5 md:px-3 md:py-2 rounded-xl hover:border-bakery-accent transition-all cursor-pointer"
+                >
                   <Globe size={14} className="text-bakery-accent" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-bakery-wheat">
                     {lang === 'en' && 'EN'}
                     {lang === 'id' && 'ID'}
                     {lang === 'ar' && 'AR'}
                   </span>
-                  <ChevronDown size={12} className="text-bakery-wheat group-hover:text-bakery-accent transition-colors" />
+                  <ChevronDown size={12} className={`text-bakery-wheat transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
-                <div className={`absolute top-full mt-2 ${lang === 'ar' ? 'left-0' : 'right-0'} bg-white border-2 border-bakery-wheat rounded-xl shadow-lg py-2 w-32 md:w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[10000]`}>
-                  <button 
-                    onClick={() => setLang('en')}
-                    className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'en' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
-                  >
-                    🇺🇸 English
-                  </button>
-                  <button 
-                    onClick={() => setLang('id')}
-                    className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'id' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
-                  >
-                    🇮🇩 Indonesia
-                  </button>
-                  <button 
-                    onClick={() => setLang('ar')}
-                    className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'ar' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
-                  >
-                    🇸🇦 العربية
-                  </button>
-                </div>
+                {isLangOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-[9999] md:hidden" 
+                      onClick={() => setIsLangOpen(false)}
+                    />
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border-2 border-bakery-wheat rounded-xl shadow-lg py-2 w-32 md:w-40 transition-all z-[10000]">
+                      <button 
+                        onClick={() => { setLang('en'); setIsLangOpen(false); }}
+                        className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'en' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+                      >
+                        🇺🇸 English
+                      </button>
+                      <button 
+                        onClick={() => { setLang('id'); setIsLangOpen(false); }}
+                        className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'id' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+                      >
+                        🇮🇩 Indonesia
+                      </button>
+                      <button 
+                        onClick={() => { setLang('ar'); setIsLangOpen(false); }}
+                        className={`w-full px-4 py-2 text-left text-[10px] md:text-xs font-bold hover:bg-bakery-cream transition-colors flex items-center gap-2 ${lang === 'ar' ? 'text-bakery-accent' : 'text-bakery-brown'}`}
+                      >
+                        🇸🇦 العربية
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -669,14 +681,14 @@ export default function App() {
                       <h2 className="text-2xl md:text-4xl serif-italic">{t.raw_materials}</h2>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase text-bakery-accent">{t.currency}</span>
+                      <span className="text-[8px] md:text-[10px] font-bold uppercase text-bakery-accent">{t.currency}</span>
                       <select 
                         value={currencyCode}
                         onChange={(e) => setCurrencyCode(e.target.value)}
-                        className="py-1 px-2 text-xs font-bold border-bakery-accent/30 bg-bakery-cream h-8"
+                        className="pt-[3px] pb-[3px] pl-[10px] pr-[12px] text-[14px] font-bold border-bakery-accent/30 bg-bakery-cream h-[45px] max-w-[100px] md:max-w-none"
                       >
                         {CURRENCIES.map(c => (
-                          <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>
+                          <option key={c.code} value={c.code} className="text-[10px] md:text-xs">{c.code} ({c.symbol})</option>
                         ))}
                       </select>
                     </div>
