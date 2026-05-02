@@ -906,13 +906,20 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className={`absolute top-14 right-0 w-72 sm:w-80 bakery-card p-6 md:p-8 z-[100] shadow-2xl ${ingredient ? 'bg-white' : ''}`}
-          >
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          <>
+            {/* Backdrop for mobile */}
+            <div 
+              className="fixed inset-0 bg-bakery-brown/20 backdrop-blur-sm z-[99] md:hidden"
+              onClick={() => setIsOpen(false)}
+            />
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:absolute md:inset-auto md:top-14 md:right-0 md:block md:p-0">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className={`w-full max-w-[400px] md:w-80 bakery-card p-6 md:p-8 shadow-2xl overflow-y-auto max-h-[90vh] ${ingredient ? 'bg-white' : ''}`}
+              >
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               <h4 className="serif-italic border-b-2 border-bakery-wheat pb-2 md:pb-3 mb-4 md:mb-6">
                 {ingredient ? t.edit_ingredient : t.new_ingredient}
               </h4>
@@ -971,9 +978,11 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
               </div>
             </form>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </div>
+      </>
+    )}
+  </AnimatePresence>
+</div>
   );
 }
 
