@@ -19,35 +19,35 @@
 }
 
 .bakery-card {
-  @apply bg-white border border-bakery-wheat rounded-2xl shadow-sm overflow-hidden p-4 md:p-6;
+  @apply bg-white border border-bakery-wheat rounded-2xl shadow-sm overflow-hidden p-4 md:p-8 lg:p-10;
 }
 
 .btn-primary {
-  @apply bg-bakery-brown text-white px-6 py-2.5 rounded-lg font-bold text-sm tracking-wide hover:opacity-90 transition-all flex items-center justify-center gap-2;
+  @apply bg-bakery-brown text-white px-6 py-2.5 md:py-3.5 rounded-xl font-bold text-sm lg:text-base tracking-wide hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-md;
 }
 
 .btn-secondary {
-  @apply border border-bakery-wheat bg-white text-bakery-brown px-4 py-2 rounded-lg font-bold text-sm hover:bg-bakery-cream transition-all flex items-center justify-center gap-2;
+  @apply border border-bakery-wheat bg-white text-bakery-brown px-4 py-2 md:py-3 rounded-lg font-bold text-sm hover:bg-bakery-cream transition-all flex items-center justify-center gap-2;
 }
 
 input, select {
-  @apply border border-bakery-wheat rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-bakery-accent/30 focus:border-bakery-accent transition-all bg-white text-sm;
+  @apply border border-bakery-wheat rounded-xl px-3 py-2.5 md:px-4 md:py-3 focus:outline-none focus:ring-2 focus:ring-bakery-accent/30 focus:border-bakery-accent transition-all bg-white text-sm md:text-base;
 }
 
 input::placeholder {
-  opacity: 0.6;
+  @apply opacity-60;
 }
 
 th {
-  @apply text-left pb-3 font-bold uppercase text-[10px] tracking-wider text-bakery-accent;
+  @apply text-left px-6 py-5 font-bold uppercase text-[10px] md:text-[11px] lg:text-xs tracking-widest text-bakery-accent bg-bakery-cream/50 whitespace-nowrap;
 }
 
 td {
-  @apply py-3 border-t border-[#F2EDE8] text-sm;
+  @apply px-6 py-4 md:py-6 border-t border-[#F2EDE8] text-sm md:text-base;
 }
 
 .bento-header {
-  @apply text-[10px] uppercase tracking-[0.2em] font-bold text-bakery-accent mb-1;
+  @apply text-[10px] md:text-[11px] lg:text-xs uppercase tracking-[0.2em] font-bold text-bakery-accent mb-1 md:mb-2 block;
 }
 
 .serif-italic {

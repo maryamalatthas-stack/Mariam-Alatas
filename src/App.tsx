@@ -483,14 +483,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 relative">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row min-h-screen">
+    <div className="min-h-screen pb-20 md:pb-0 relative bg-bakery-cream">
+      <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row min-h-screen">
         {/* Sidebar / Navigation */}
-        <nav className="w-full md:w-64 bg-bakery-brown text-white p-4 md:p-8 sticky top-0 z-50 md:h-screen shrink-0 border-b-4 md:border-b-0 md:border-r-8 border-bakery-wheat">
+        <nav className="w-full md:w-64 lg:w-72 bg-bakery-brown text-white p-4 md:p-8 md:p-10 sticky top-0 z-50 md:h-screen shrink-0 border-b-4 md:border-b-0 md:border-r-8 border-bakery-wheat">
           <div className="flex flex-row md:flex-col justify-between items-center md:items-start mb-6 md:mb-12">
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-bakery-accent mb-0 md:mb-1">Professional Cost</span>
-              <h1 className="text-xl md:text-3xl font-serif font-bold italic leading-tight">BakeCost Pro</h1>
+              <span className="text-[10px] lg:text-[11px] uppercase tracking-[0.2em] font-bold text-bakery-accent mb-0 md:mb-1">Professional Cost</span>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold italic leading-tight">BakeCost Pro</h1>
             </div>
 
             <div className="md:mt-6">
@@ -576,7 +576,7 @@ export default function App() {
         </nav>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-8 md:p-12 transition-all">
+        <main className="flex-1 p-4 sm:p-8 md:p-10 lg:p-16 transition-all min-w-0">
           <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && (
               <motion.div 
@@ -584,48 +584,48 @@ export default function App() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="space-y-6 md:space-y-10"
+                className="space-y-8 md:space-y-12"
               >
-                <header className="flex justify-between items-end border-b-2 border-bakery-wheat pb-6">
+                <header className="flex justify-between items-end border-b-2 border-bakery-wheat pb-6 md:pb-8">
                   <div>
                     <span className="bento-header">{t.welcome}</span>
-                    <h2 className="text-2xl md:text-4xl serif-italic">{t.bakery_dashboard}</h2>
+                    <h2 className="text-2xl md:text-3xl lg:text-5xl serif-italic">{t.bakery_dashboard}</h2>
                   </div>
-                  <button onClick={() => setActiveTab('recipes')} className="btn-primary py-2 px-4 md:py-2.5 md:px-6">
+                  <button onClick={() => setActiveTab('recipes')} className="btn-primary py-2 px-4 md:py-3 md:px-8">
                     <Plus size={18} /> <span className="hidden sm:inline">{t.new_calculation}</span>
                   </button>
                 </header>
 
-                <div className="grid grid-cols-12 gap-6 h-auto">
-                  <div className="col-span-12 md:col-span-8 bakery-card bg-gradient-to-br from-white to-bakery-cream">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="serif-italic text-2xl">{t.recent_inventory}</h3>
-                      <button onClick={() => setActiveTab('ingredients')} className="text-bakery-accent font-bold text-xs flex items-center gap-1 uppercase tracking-widest hover:underline">
+                <div className="grid grid-cols-12 gap-6 lg:gap-10 h-auto">
+                  <div className="col-span-12 lg:col-span-8 bakery-card bg-gradient-to-br from-white to-bakery-cream">
+                    <div className="flex justify-between items-center mb-6 md:mb-8">
+                      <h3 className="serif-italic text-2xl lg:text-3xl">{t.recent_inventory}</h3>
+                      <button onClick={() => setActiveTab('ingredients')} className="text-bakery-accent font-bold text-xs lg:text-sm flex items-center gap-1 uppercase tracking-widest hover:underline">
                         {t.manage} <ChevronRight size={14} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                       {ingredients.slice(0, 6).map(ing => (
-                        <div key={ing.id} className="p-4 bg-bakery-cream/40 rounded-xl border border-bakery-wheat/50">
-                          <p className="text-[10px] font-bold text-bakery-accent uppercase mb-1">{ing.name}</p>
-                          <p className="font-bold">{formatPrice(getPricePerGram(ing))}<span className="text-[10px] opacity-40 ml-1">/gr</span></p>
+                        <div key={ing.id} className="p-4 md:p-6 bg-bakery-cream/40 rounded-xl border border-bakery-wheat/50">
+                          <p className="text-[10px] md:text-xs font-bold text-bakery-accent uppercase mb-1">{ing.name}</p>
+                          <p className="font-bold text-base md:text-lg">{formatPrice(getPricePerGram(ing))}<span className="text-[10px] md:text-xs opacity-40 ml-1">/gr</span></p>
                         </div>
                       ))}
                       {ingredients.length === 0 && <p className="col-span-full py-10 text-center opacity-40 italic">{t.pantry_empty}</p>}
                     </div>
                   </div>
 
-                  <div className="col-span-12 md:col-span-4 bakery-card bg-bakery-brown text-white flex flex-col justify-between">
+                  <div className="col-span-12 lg:col-span-4 bakery-card bg-bakery-brown text-white flex flex-col justify-between p-6 md:p-10">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-4 block">{t.quick_stats}</span>
-                      <div className="space-y-6">
+                      <span className="text-[10px] lg:text-[11px] uppercase font-bold text-bakery-accent tracking-widest mb-4 md:mb-6 block">{t.quick_stats}</span>
+                      <div className="space-y-6 md:space-y-8">
                         <div>
-                          <div className="text-4xl font-serif font-bold italic tracking-tight">{recipes.length}</div>
-                          <div className="text-[11px] opacity-60 uppercase font-medium">{t.active_recipes}</div>
+                          <div className="text-4xl lg:text-6xl font-serif font-bold italic tracking-tight">{recipes.length}</div>
+                          <div className="text-[11px] lg:text-xs opacity-60 uppercase font-medium">{t.active_recipes}</div>
                         </div>
-                        <div className="border-t border-white/10 pt-4">
-                          <div className="text-4xl font-serif font-bold italic tracking-tight text-bakery-wheat">{ingredients.length}</div>
-                          <div className="text-[11px] opacity-60 uppercase font-medium">{t.raw_ingredients}</div>
+                        <div className="border-t border-white/10 pt-4 md:pt-6">
+                          <div className="text-4xl lg:text-6xl font-serif font-bold italic tracking-tight text-bakery-wheat">{ingredients.length}</div>
+                          <div className="text-[11px] lg:text-xs opacity-60 uppercase font-medium">{t.raw_ingredients}</div>
                         </div>
                       </div>
                     </div>
@@ -681,11 +681,11 @@ export default function App() {
                       <h2 className="text-2xl md:text-4xl serif-italic">{t.raw_materials}</h2>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-[8px] md:text-[10px] font-bold uppercase text-bakery-accent">{t.currency}</span>
+                      <span className="bento-header text-bakery-accent text-[8px] md:text-[10px]">{t.currency}</span>
                       <select 
                         value={currencyCode}
                         onChange={(e) => setCurrencyCode(e.target.value)}
-                        className="pt-[3px] pb-[3px] pl-[10px] pr-[12px] text-[14px] font-bold border-bakery-accent/30 bg-bakery-cream h-[45px] max-w-[100px] md:max-w-none"
+                        className="pt-[3px] pb-[3px] pl-[10px] pr-[12px] text-[14px] font-bold border-bakery-accent/30 bg-bakery-cream h-[45px] max-w-[120px] md:max-w-none"
                       >
                         {CURRENCIES.map(c => (
                           <option key={c.code} value={c.code} className="text-[10px] md:text-xs">{c.code} ({c.symbol})</option>
@@ -773,15 +773,17 @@ export default function App() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-10 gap-4">
-                  <div>
-                    <span className="bento-header">{t.production_management}</span>
-                    <h2 className="text-2xl md:text-4xl serif-italic">{t.recipe_cogs_analysis}</h2>
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-12 gap-6">
+                  <div className="flex flex-wrap gap-4 md:gap-8 items-end">
+                    <div>
+                      <span className="bento-header font-bold">{t.production_management}</span>
+                      <h2 className="text-2xl md:text-3xl lg:text-5xl serif-italic">{t.recipe_cogs_analysis}</h2>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-start">
-                  <div className="lg:col-span-7">
+                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                  <div className="lg:col-span-8 xl:col-span-7">
                     <RecipeForm 
                       ingredients={ingredients} 
                       onAdd={addRecipe} 
@@ -794,9 +796,9 @@ export default function App() {
                     />
                   </div>
                   
-                  <div className="lg:col-span-5 space-y-4 md:space-y-6">
-                    <h3 className="serif-italic text-xl md:text-2xl px-2">{t.saved_formulas}</h3>
-                    <div className="space-y-4 md:space-y-6">
+                  <div className="lg:col-span-4 xl:col-span-5 space-y-6 md:space-y-8">
+                    <h3 className="serif-italic text-xl md:text-2xl lg:text-3xl px-2">{t.saved_formulas}</h3>
+                    <div className="space-y-4 md:space-y-6 lg:space-y-8">
                       {recipes.map(recipe => (
                         <RecipeCard 
                           key={recipe.id} 
@@ -924,25 +926,25 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
                 {ingredient ? t.edit_ingredient : t.new_ingredient}
               </h4>
               <div className="space-y-1.5 md:space-y-2 text-left">
-                <label className="bento-header font-bold text-[8px] md:text-[10px]">{t.ingredient_name}</label>
+                <label className="bento-header font-bold text-[9px] md:text-xs">{t.ingredient_name}</label>
                 <input 
                   type="text" 
                   autoFocus
                   placeholder="e.g. Bread Flour" 
-                  className="w-full h-10 text-sm"
+                  className="w-full h-11 text-sm md:text-base"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3 md:gap-4 text-left">
                 <div className="space-y-1.5 md:space-y-2">
-                  <label className="bento-header font-bold text-[8px] md:text-[10px]">{t.weight}</label>
+                  <label className="bento-header font-bold text-[9px] md:text-xs">{t.weight}</label>
                   <input 
                     type="number" 
                     step="any"
                     min="0"
                     placeholder="1000" 
-                    className="w-full h-10 text-sm"
+                    className="w-full h-11 text-sm md:text-base"
                     value={formData.weight}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -953,13 +955,13 @@ function IngredientForm({ onSave, ingredient, currency, t }: { onSave: (name: st
                   />
                 </div>
                 <div className="space-y-1.5 md:space-y-2">
-                  <label className="bento-header font-bold text-[8px] md:text-[10px]">{t.price} ({currency.symbol})</label>
+                  <label className="bento-header font-bold text-[9px] md:text-xs">{t.price} ({currency.symbol})</label>
                   <input 
                     type="number" 
                     step="any"
                     min="0"
                     placeholder="25000" 
-                    className="w-full h-10 text-sm"
+                    className="w-full h-11 text-sm md:text-base"
                     value={formData.price}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -1080,32 +1082,32 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`bakery-card p-6 md:p-10 space-y-6 md:space-y-10 h-fit transition-all ${editingRecipe ? 'ring-2 ring-bakery-accent border-bakery-accent' : 'bg-[#FAF9F6]'}`}>
-      <div className="flex flex-col gap-1 md:gap-2 mb-4 md:mb-6">
+    <form onSubmit={handleSubmit} className={`bakery-card p-6 md:p-10 lg:p-12 space-y-8 md:space-y-12 h-fit transition-all ${editingRecipe ? 'ring-2 ring-bakery-accent border-bakery-accent' : 'bg-[#FAF9F6]'}`}>
+      <div className="flex flex-col gap-1 md:gap-2 mb-4 md:mb-8">
         <span className="bento-header">{t.calculator}</span>
-        <h3 className="text-2xl md:text-3xl serif-italic">{editingRecipe ? 'Edit Recipe' : t.recipe_builder}</h3>
+        <h3 className="text-2xl md:text-3xl lg:text-4xl serif-italic">{editingRecipe ? 'Edit Recipe' : t.recipe_builder}</h3>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 md:gap-10">
-        <div className="space-y-4 md:space-y-6">
-          <div className="space-y-1.5 md:space-y-2">
+      <div className="grid xl:grid-cols-[1fr_1.75fr] gap-8 lg:gap-12">
+        <div className="space-y-6 md:space-y-8">
+          <div className="space-y-2 lg:space-y-3">
             <label className="bento-header">{t.recipe_label}</label>
             <input 
               type="text" 
               placeholder="e.g. Sourdough Loaf" 
-              className="w-full text-base md:text-lg font-medium h-11"
+              className="w-full text-base md:text-lg lg:text-xl font-medium h-12 lg:h-14"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            <div className="space-y-1.5 md:space-y-2">
+          <div className="grid grid-cols-2 gap-4 md:gap-6">
+            <div className="space-y-2 lg:space-y-3">
               <label className="bento-header">{t.yield_pcs}</label>
               <input 
                 type="number" 
                 min="0"
                 placeholder="1" 
-                className="w-full h-10"
+                className="w-full h-11 lg:h-12"
                 value={formData.yield}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -1115,13 +1117,13 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
                 }}
               />
             </div>
-            <div className="space-y-1.5 md:space-y-2">
+            <div className="space-y-2 lg:space-y-3">
               <label className="bento-header">{t.labor_cost}</label>
               <input 
                 type="number" 
                 min="0"
                 placeholder={currency.symbol} 
-                className="w-full h-10"
+                className="w-full h-11 lg:h-12"
                 value={formData.labor}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -1132,13 +1134,13 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
               />
             </div>
           </div>
-          <div className="space-y-1.5 md:space-y-2">
+          <div className="space-y-2 lg:space-y-3">
             <label className="bento-header">{t.packaging_pc}</label>
             <input 
               type="number" 
               min="0"
               placeholder={currency.symbol} 
-              className="w-full h-10"
+              className="w-full h-11 lg:h-12"
               value={formData.packaging}
               onChange={(e) => {
                 const val = e.target.value;
@@ -1150,19 +1152,19 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
           </div>
         </div>
 
-        <div className="space-y-4 bg-white border border-bakery-wheat p-4 md:p-6 rounded-2xl shadow-sm">
+        <div className="space-y-6 md:space-y-8 bg-white border border-bakery-wheat p-6 md:p-8 lg:p-10 rounded-2xl shadow-sm">
           <div className="flex justify-between items-center mb-2">
-            <h4 className="bento-header">{t.ingredients}</h4>
-            <button type="button" onClick={addIngredientToRecipe} className="bg-bakery-brown text-white p-1 rounded transition-colors">
-              <Plus size={16} />
+            <h4 className="bento-header text-xs lg:text-sm">{t.ingredients}</h4>
+            <button type="button" onClick={addIngredientToRecipe} className="bg-bakery-brown text-white p-1.5 md:p-2 rounded transition-colors hover:bg-bakery-accent">
+              <Plus size={20} />
             </button>
           </div>
           
-          <div className="space-y-4 max-h-72 overflow-y-auto pr-2 no-scrollbar">
+          <div className="space-y-4 max-h-[400px] lg:max-h-[600px] overflow-y-auto pr-4 no-scrollbar">
             {formData.selectedIngredients.map((item, idx) => (
-              <div key={idx} className="flex gap-2 items-center border-b border-[#F2EDE8] pb-3 last:border-0 last:pb-0">
+              <div key={idx} className="flex gap-4 md:gap-6 items-center border-b border-[#F2EDE8] pb-4 last:border-0 last:pb-0">
                 <select 
-                  className="flex-1 text-sm border-none bg-transparent focus:ring-0 font-medium"
+                  className="flex-1 text-sm md:text-base border-none bg-transparent focus:ring-0 font-medium py-2"
                   value={item.ingredientId}
                   onChange={(e) => updateSelectedIngredient(idx, 'ingredientId', e.target.value)}
                 >
@@ -1171,12 +1173,12 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
                     <option key={ing.id} value={ing.id}>{ing.name}</option>
                   ))}
                 </select>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <input 
                     type="number" 
                     min="0"
                     placeholder={t.weight} 
-                    className="w-20 text-xs border-none bg-bakery-cream/30 focus:ring-1 focus:ring-bakery-accent/20 rounded py-1"
+                    className="w-24 md:w-32 text-sm border-none bg-bakery-cream/30 focus:ring-1 focus:ring-bakery-accent/20 rounded py-2 text-right font-bold"
                     value={item.weight || ''}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -1185,10 +1187,10 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
                       }
                     }}
                   />
-                  <span className="text-[10px] font-bold text-bakery-accent">GR</span>
+                  <span className="text-[10px] md:text-xs font-bold text-bakery-accent">GR</span>
                 </div>
-                <button type="button" onClick={() => removeSelectedIngredient(idx)} className="text-bakery-accent hover:text-red-500 ml-1">
-                  <Trash2 size={14} />
+                <button type="button" onClick={() => removeSelectedIngredient(idx)} className="p-2 text-bakery-accent hover:text-red-500 transition-colors">
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))}
@@ -1213,16 +1215,16 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
         </motion.div>
       )}
 
-      <div className="flex gap-4">
-        <button type="submit" className="btn-primary flex-1 py-4 text-sm tracking-[0.1em]">
-          <Save size={18} /> {editingRecipe ? t.update_item : t.generate_calculation}
-        </button>
-        {editingRecipe && (
-          <button type="button" onClick={onCancelEdit} className="btn-secondary py-4 text-sm tracking-[0.1em]">
-            {t.cancel}
+        <div className="flex gap-4 md:gap-6 mt-4">
+          <button type="submit" className="btn-primary flex-1 py-3 md:py-4 text-sm lg:text-base tracking-[0.1em]">
+            <Save size={18} /> {editingRecipe ? t.update_item : t.generate_calculation}
           </button>
-        )}
-      </div>
+          {editingRecipe && (
+            <button type="button" onClick={onCancelEdit} className="btn-secondary py-3 md:py-4 text-sm lg:text-base tracking-[0.1em]">
+              {t.cancel}
+            </button>
+          )}
+        </div>
     </form>
   );
 }
@@ -1243,11 +1245,11 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className={`bakery-card transition-all p-0 ${isExpanded ? 'ring-2 ring-bakery-brown' : 'hover:border-bakery-brown hover:shadow-md'}`}>
-      <div className="p-4 md:p-6 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="flex gap-2 md:gap-4 items-center">
-          <div className="bg-bakery-wheat/30 px-2 py-1 md:px-3 md:py-1 rounded-lg text-right min-w-[50px] md:min-w-[60px]">
-            <div className="text-[8px] md:text-[10px] uppercase font-bold text-bakery-accent tracking-tighter leading-none mb-1">Yield</div>
+    <div className={`bakery-card transition-all p-0 ${isExpanded ? 'ring-4 ring-bakery-brown shadow-xl' : 'hover:border-bakery-brown hover:shadow-lg'}`}>
+      <div className="p-4 md:p-8 lg:p-10 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="flex gap-3 md:gap-6 items-center">
+          <div className="bg-bakery-wheat/30 px-3 py-2 md:px-5 md:py-3 rounded-xl text-right min-w-[60px] md:min-w-[100px]">
+            <div className="text-[8px] md:text-xs uppercase font-bold text-bakery-accent tracking-widest leading-none mb-2">Yield</div>
             <input 
               type="number"
               min="1"
@@ -1258,20 +1260,20 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
                 else if (e.target.value === '') onUpdateYield(0);
               }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-transparent border-none p-0 text-right font-serif font-bold italic text-xs md:text-sm w-full focus:ring-0"
+              className="bg-transparent border-none p-0 text-right font-serif font-bold italic text-sm md:text-xl lg:text-2xl w-full focus:ring-0"
             />
           </div>
           <div>
-            <h4 className="serif-italic text-base md:text-xl line-clamp-1">{recipe.name}</h4>
+            <h4 className="serif-italic text-lg md:text-2xl lg:text-3xl line-clamp-1">{recipe.name}</h4>
           </div>
         </div>
-        <div className="flex items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-4 md:gap-10">
           <div className="text-right">
-            <p className="text-[8px] md:text-[10px] uppercase font-bold text-bakery-accent tracking-widest">{t.cogs_per_piece}</p>
-            <p className="font-bold text-lg md:text-2xl text-bakery-brown">{formatPrice(costs.hppPerPc)}</p>
+            <p className="text-[8px] md:text-xs uppercase font-bold text-bakery-accent tracking-widest mb-1">{t.cogs_per_piece}</p>
+            <p className="font-bold text-xl md:text-3xl lg:text-4xl text-bakery-brown">{formatPrice(costs.hppPerPc)}</p>
           </div>
           <motion.div animate={{ rotate: isExpanded ? 90 : 0 }}>
-            <ChevronRight size={20} className="text-bakery-wheat" />
+            <ChevronRight size={24} className="text-bakery-wheat md:w-8 md:h-8" />
           </motion.div>
         </div>
       </div>
@@ -1284,13 +1286,13 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden bg-[#FDFBF7]"
           >
-            <div className="p-4 md:p-8 border-t border-bakery-wheat space-y-6 md:space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="p-4 md:p-8 lg:p-12 border-t border-bakery-wheat space-y-8 md:space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
                 {/* Breakdown Section */}
-                <div className="bg-white border border-bakery-wheat rounded-2xl p-4 md:p-6 shadow-sm">
-                  <div className="flex justify-between items-center mb-4">
-                    <h5 className="serif-italic text-base md:text-lg">{t.breakdown}</h5>
-                    <span className="text-[8px] md:text-[10px] font-bold uppercase text-bakery-accent tracking-widest">{t.weights_in_gr}</span>
+                <div className="bg-white border border-bakery-wheat rounded-3xl p-6 md:p-8 lg:p-10 shadow-sm">
+                  <div className="flex justify-between items-center mb-6">
+                    <h5 className="serif-italic text-lg md:text-xl lg:text-2xl">{t.breakdown}</h5>
+                    <span className="bento-header text-bakery-accent">{t.weights_in_gr}</span>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
@@ -1304,44 +1306,44 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
                       <tbody className="divide-y divide-[#F2EDE8]">
                         {costs.breakdown.map((item: any, i: number) => (
                           <tr key={i}>
-                            <td className="py-2.5 md:py-3 font-medium text-bakery-brown">{item.name}</td>
-                            <td className="py-2.5 md:py-3 text-right">{item.weight} gr</td>
-                            <td className="py-2.5 md:py-3 text-right font-bold">{formatPrice(item.cost)}</td>
+                            <td className="py-3 md:py-4 font-medium text-bakery-brown">{item.name}</td>
+                            <td className="py-3 md:py-4 text-right">{item.weight} gr</td>
+                            <td className="py-3 md:py-4 text-right font-bold">{formatPrice(item.cost)}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-bakery-brown flex justify-between items-center">
-                    <span className="serif-italic text-sm md:text-base">{t.ingredient_subtotal}</span>
-                    <span className="font-bold text-base md:text-lg">{formatPrice(costs.totalIngredientCost)}</span>
+                  <div className="mt-6 pt-6 border-t border-bakery-brown/20 flex justify-between items-center">
+                    <span className="serif-italic text-base md:text-xl">{t.ingredient_subtotal}</span>
+                    <span className="font-bold text-lg md:text-2xl">{formatPrice(costs.totalIngredientCost)}</span>
                   </div>
                 </div>
 
                 {/* Summary Section */}
-                <div className="space-y-4 md:space-y-6">
-                  <div className="bg-[#F7F2ED] border border-bakery-wheat rounded-2xl p-4 md:p-6 shadow-sm">
-                    <h5 className="bento-header mb-4">{t.operational_detail}</h5>
-                    <div className="space-y-3 md:space-y-4">
-                      <div className="flex justify-between items-center text-xs md:text-sm">
-                        <span>{t.packaging} ({recipe.yield} units)</span>
+                <div className="space-y-6 md:space-y-8">
+                  <div className="bg-[#F7F2ED] border border-bakery-wheat rounded-3xl p-6 md:p-8 lg:p-10 shadow-sm">
+                    <h5 className="bento-header mb-6">{t.operational_detail}</h5>
+                    <div className="space-y-4 md:space-y-5">
+                      <div className="flex justify-between items-center text-sm md:text-base">
+                        <span className="font-medium text-bakery-brown/70">{t.packaging} ({recipe.yield} units)</span>
                         <span className="font-bold">{formatPrice(recipe.packagingPerPc * recipe.yield)}</span>
                       </div>
-                      <div className="flex justify-between items-center text-xs md:text-sm">
-                        <span className="italic">{t.labor_capex}</span>
+                      <div className="flex justify-between items-center text-sm md:text-base">
+                        <span className="italic font-medium text-bakery-brown/70">{t.labor_capex}</span>
                         <span className="font-bold">{formatPrice(recipe.operationalCost)}</span>
                       </div>
-                      <div className="border-t border-bakery-wheat pt-3 md:pt-4 flex justify-between items-center">
-                        <span className="font-serif italic font-bold text-sm md:text-base">{t.total_batch_cost}</span>
-                        <span className="font-bold text-lg md:text-xl">{formatPrice(costs.totalCost)}</span>
+                      <div className="border-t border-bakery-wheat pt-4 md:pt-6 flex justify-between items-center">
+                        <span className="font-serif italic font-bold text-base md:text-xl">{t.total_batch_cost}</span>
+                        <span className="font-bold text-xl md:text-2xl">{formatPrice(costs.totalCost)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-bakery-brown text-white rounded-2xl p-4 md:p-6 shadow-lg">
-                    <h5 className="text-[8px] md:text-[10px] uppercase font-bold text-bakery-accent tracking-widest mb-3">{t.unit_summary}</h5>
-                    <div className="text-3xl md:text-4xl font-serif font-bold italic tracking-tight mb-1">{formatPrice(costs.hppPerPc)}</div>
-                    <div className="flex items-center gap-2 text-[10px] md:text-[11px] opacity-60 uppercase font-bold tracking-widest">
+                  <div className="bg-bakery-brown text-white rounded-3xl p-6 md:p-8 lg:p-10 shadow-lg">
+                    <h5 className="text-[10px] md:text-xs uppercase font-bold text-bakery-accent tracking-widest mb-4">{t.unit_summary}</h5>
+                    <div className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold italic tracking-tight mb-2">{formatPrice(costs.hppPerPc)}</div>
+                    <div className="flex items-center gap-2 text-xs md:text-sm opacity-60 uppercase font-bold tracking-widest">
                       <span>{t.cogs_per_unit} ({t.pieces_yield}:</span>
                       <input 
                         type="number"
@@ -1352,7 +1354,7 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
                           if (val >= 1) onUpdateYield(val);
                           else if (e.target.value === '') onUpdateYield(0);
                         }}
-                        className="bg-white/10 border-none p-0 w-8 md:w-10 text-center focus:ring-0 rounded"
+                        className="bg-white/10 border-none p-0 w-10 md:w-14 text-center focus:ring-0 rounded text-white font-bold"
                       />
                       <span>)</span>
                     </div>
