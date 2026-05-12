@@ -484,16 +484,39 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 relative bg-bakery-cream">
-      <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row min-h-screen">
+      <div className="max-w-[1600px] mx-auto flex flex-col min-h-screen">
         {/* Sidebar / Navigation */}
-        <nav className="w-full md:w-64 lg:w-72 bg-bakery-brown text-white p-4 md:p-8 md:p-10 sticky top-0 z-50 md:h-screen shrink-0 border-b-4 md:border-b-0 md:border-r-8 border-bakery-wheat">
-          <div className="flex flex-row md:flex-col justify-between items-center md:items-start mb-6 md:mb-12">
+        <nav className="w-full lg:h-24 lg:flex-row lg:items-center lg:px-12 bg-bakery-brown text-white p-4 md:p-8 sticky top-0 z-50 md:h-screen lg:shrink-0 border-b-4 lg:border-b-8 border-bakery-wheat flex flex-col md:w-64 lg:w-full">
+          <div className="flex flex-row md:flex-col lg:flex-row justify-between items-center md:items-start lg:items-center w-full">
             <div className="flex flex-col">
               <span className="text-[10px] lg:text-[11px] uppercase tracking-[0.2em] font-bold text-bakery-accent mb-0 md:mb-1">Professional Cost</span>
               <h1 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold italic leading-tight">BakeCost Pro</h1>
             </div>
 
-            <div className="md:mt-6">
+            <div className="flex items-center gap-6 lg:gap-10">
+              {/* Desktop Nav Links */}
+              <div className="hidden lg:flex items-center gap-2">
+                <NavButton 
+                  active={activeTab === 'dashboard'} 
+                  onClick={() => setActiveTab('dashboard')}
+                  icon={<LayoutDashboard size={20} />}
+                  label={t.dashboard}
+                />
+                <NavButton 
+                  active={activeTab === 'ingredients'} 
+                  onClick={() => setActiveTab('ingredients')}
+                  icon={<Scale size={20} />}
+                  label={t.inventory}
+                />
+                <NavButton 
+                  active={activeTab === 'recipes'} 
+                  onClick={() => setActiveTab('recipes')}
+                  icon={<ClipboardList size={20} />}
+                  label={t.recipes}
+                />
+              </div>
+
+              <div className="md:mt-6 lg:mt-0">
               <div className="relative">
                 <button 
                   onClick={() => setIsLangOpen(!isLangOpen)}
@@ -539,8 +562,9 @@ export default function App() {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="hidden md:flex flex-col gap-3">
+        <div className="hidden md:flex lg:hidden flex-col gap-3">
             <NavButton 
               active={activeTab === 'dashboard'} 
               onClick={() => setActiveTab('dashboard')}
@@ -561,7 +585,7 @@ export default function App() {
             />
           </div>
 
-          <div className="mt-auto hidden md:block pt-10">
+          <div className="mt-auto hidden md:block lg:hidden pt-10">
             <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-[10px] uppercase font-bold text-bakery-wheat/40 mb-2">{t.business_health}</p>
               <div className="flex justify-between items-end">
@@ -782,8 +806,8 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-                  <div className="lg:col-span-8 xl:col-span-7">
+                <div className="flex flex-col gap-12 lg:gap-20">
+                  <section>
                     <RecipeForm 
                       ingredients={ingredients} 
                       onAdd={addRecipe} 
@@ -794,11 +818,13 @@ export default function App() {
                       currency={currency} 
                       t={t} 
                     />
-                  </div>
+                  </section>
                   
-                  <div className="lg:col-span-4 xl:col-span-5 space-y-6 md:space-y-8">
-                    <h3 className="serif-italic text-xl md:text-2xl lg:text-3xl px-2">{t.saved_formulas}</h3>
-                    <div className="space-y-4 md:space-y-6 lg:space-y-8">
+                  <section className="space-y-8 lg:space-y-12">
+                    <div className="border-t-4 border-bakery-wheat pt-12 lg:pt-16">
+                      <h3 className="serif-italic text-2xl md:text-3xl lg:text-5xl px-2">{t.saved_formulas}</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-6 lg:gap-10">
                       {recipes.map(recipe => (
                         <RecipeCard 
                           key={recipe.id} 
@@ -816,12 +842,12 @@ export default function App() {
                         />
                       ))}
                       {recipes.length === 0 && (
-                        <div className="bakery-card p-16 text-center serif-italic text-bakery-accent opacity-40 border-dashed">
-                          {t.recipe_list_empty}
+                        <div className="col-span-full py-20 text-center bakery-card bg-bakery-cream/30 border-dashed">
+                          <p className="serif-italic text-2xl opacity-40">{t.recipe_list_empty}</p>
                         </div>
                       )}
                     </div>
-                  </div>
+                  </section>
                 </div>
               </motion.div>
             )}
@@ -1082,32 +1108,32 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`bakery-card p-6 md:p-10 lg:p-12 space-y-8 md:space-y-12 h-fit transition-all ${editingRecipe ? 'ring-2 ring-bakery-accent border-bakery-accent' : 'bg-[#FAF9F6]'}`}>
-      <div className="flex flex-col gap-1 md:gap-2 mb-4 md:mb-8">
-        <span className="bento-header">{t.calculator}</span>
-        <h3 className="text-2xl md:text-3xl lg:text-4xl serif-italic">{editingRecipe ? 'Edit Recipe' : t.recipe_builder}</h3>
+    <form onSubmit={handleSubmit} className={`bakery-card p-6 md:p-10 lg:p-16 space-y-8 md:space-y-12 h-fit transition-all ${editingRecipe ? 'ring-2 ring-bakery-accent border-bakery-accent' : 'bg-[#FAF9F6] shadow-xl'}`}>
+      <div className="flex flex-col gap-1 md:gap-2 mb-4 md:mb-8 lg:mb-12">
+        <span className="bento-header lg:text-sm">{t.calculator}</span>
+        <h3 className="text-2xl md:text-3xl lg:text-6xl serif-italic">{editingRecipe ? 'Edit Recipe' : t.recipe_builder}</h3>
       </div>
 
-      <div className="grid xl:grid-cols-[1fr_1.75fr] gap-8 lg:gap-12">
-        <div className="space-y-6 md:space-y-8">
-          <div className="space-y-2 lg:space-y-3">
-            <label className="bento-header">{t.recipe_label}</label>
+      <div className="grid grid-cols-1 lg:gap-20">
+        <div className="space-y-6 md:space-y-8 lg:space-y-12">
+          <div className="space-y-2 lg:space-y-5">
+            <label className="bento-header lg:text-sm">{t.recipe_label}</label>
             <input 
               type="text" 
               placeholder="e.g. Sourdough Loaf" 
-              className="w-full text-base md:text-lg lg:text-xl font-medium h-12 lg:h-14"
+              className="w-full text-base md:text-lg lg:text-3xl font-medium h-12 lg:h-20 lg:px-8 bg-white"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4 md:gap-6">
-            <div className="space-y-2 lg:space-y-3">
-              <label className="bento-header">{t.yield_pcs}</label>
+          <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-10">
+            <div className="space-y-2 lg:space-y-5">
+              <label className="bento-header lg:text-sm">{t.yield_pcs}</label>
               <input 
                 type="number" 
                 min="0"
                 placeholder="1" 
-                className="w-full h-11 lg:h-12"
+                className="w-full h-11 lg:h-16 lg:text-xl lg:px-6"
                 value={formData.yield}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -1117,13 +1143,13 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
                 }}
               />
             </div>
-            <div className="space-y-2 lg:space-y-3">
-              <label className="bento-header">{t.labor_cost}</label>
+            <div className="space-y-2 lg:space-y-5">
+              <label className="bento-header lg:text-sm">{t.labor_cost}</label>
               <input 
                 type="number" 
                 min="0"
                 placeholder={currency.symbol} 
-                className="w-full h-11 lg:h-12"
+                className="w-full h-11 lg:h-16 lg:text-xl lg:px-6"
                 value={formData.labor}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -1134,13 +1160,13 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
               />
             </div>
           </div>
-          <div className="space-y-2 lg:space-y-3">
-            <label className="bento-header">{t.packaging_pc}</label>
+          <div className="space-y-2 lg:space-y-5">
+            <label className="bento-header lg:text-sm">{t.packaging_pc}</label>
             <input 
               type="number" 
               min="0"
               placeholder={currency.symbol} 
-              className="w-full h-11 lg:h-12"
+              className="w-full h-11 lg:h-16 lg:text-xl lg:px-6"
               value={formData.packaging}
               onChange={(e) => {
                 const val = e.target.value;
@@ -1152,19 +1178,19 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
           </div>
         </div>
 
-        <div className="space-y-6 md:space-y-8 bg-white border border-bakery-wheat p-6 md:p-8 lg:p-10 rounded-2xl shadow-sm">
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="bento-header text-xs lg:text-sm">{t.ingredients}</h4>
-            <button type="button" onClick={addIngredientToRecipe} className="bg-bakery-brown text-white p-1.5 md:p-2 rounded transition-colors hover:bg-bakery-accent">
-              <Plus size={20} />
+        <div className="space-y-6 md:space-y-8 lg:space-y-12 bg-white border border-bakery-wheat p-6 md:p-8 lg:p-12 rounded-3xl shadow-sm">
+          <div className="flex justify-between items-center mb-2 lg:mb-4">
+            <h4 className="bento-header text-xs lg:text-base">{t.ingredients}</h4>
+            <button type="button" onClick={addIngredientToRecipe} className="bg-bakery-brown text-white p-1.5 md:p-2 lg:p-4 rounded-xl transition-colors hover:bg-bakery-accent shadow-md">
+              <Plus size={24} />
             </button>
           </div>
           
-          <div className="space-y-4 max-h-[400px] lg:max-h-[600px] overflow-y-auto pr-4 no-scrollbar">
+          <div className="space-y-4 lg:space-y-8 max-h-[400px] lg:max-h-[700px] overflow-y-auto pr-4 no-scrollbar">
             {formData.selectedIngredients.map((item, idx) => (
-              <div key={idx} className="flex gap-4 md:gap-6 items-center border-b border-[#F2EDE8] pb-4 last:border-0 last:pb-0">
+              <div key={idx} className="flex flex-col sm:flex-row gap-4 md:gap-6 lg:gap-10 items-start sm:items-center border-b border-[#F2EDE8] pb-4 lg:pb-8 last:border-0 last:pb-0">
                 <select 
-                  className="flex-1 text-sm md:text-base border-none bg-transparent focus:ring-0 font-medium py-2"
+                  className="flex-1 w-full text-sm md:text-base lg:text-2xl border-none bg-transparent focus:ring-0 font-medium py-2 lg:py-4 px-0"
                   value={item.ingredientId}
                   onChange={(e) => updateSelectedIngredient(idx, 'ingredientId', e.target.value)}
                 >
@@ -1173,25 +1199,27 @@ function RecipeForm({ ingredients, onAdd, onUpdate, editingRecipe, onCancelEdit,
                     <option key={ing.id} value={ing.id}>{ing.name}</option>
                   ))}
                 </select>
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="number" 
-                    min="0"
-                    placeholder={t.weight} 
-                    className="w-24 md:w-32 text-sm border-none bg-bakery-cream/30 focus:ring-1 focus:ring-bakery-accent/20 rounded py-2 text-right font-bold"
-                    value={item.weight || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '' || parseFloat(val) >= 0) {
-                        updateSelectedIngredient(idx, 'weight', parseFloat(val) || 0);
-                      }
-                    }}
-                  />
-                  <span className="text-[10px] md:text-xs font-bold text-bakery-accent">GR</span>
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                    <input 
+                      type="number" 
+                      min="0"
+                      placeholder={t.weight} 
+                      className="w-full sm:w-32 lg:w-48 text-sm md:text-base lg:text-2xl border-none bg-bakery-cream/50 focus:ring-2 focus:ring-bakery-accent/20 rounded-xl py-2 lg:py-4 text-right font-bold"
+                      value={item.weight || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '' || parseFloat(val) >= 0) {
+                          updateSelectedIngredient(idx, 'weight', parseFloat(val) || 0);
+                        }
+                      }}
+                    />
+                    <span className="text-[10px] md:text-xs lg:text-sm font-bold text-bakery-accent shrink-0">GR</span>
+                  </div>
+                  <button type="button" onClick={() => removeSelectedIngredient(idx)} className="p-2 lg:p-4 text-bakery-accent hover:text-red-500 transition-colors bg-[#FAF9F6] rounded-xl">
+                    <Trash2 size={24} />
+                  </button>
                 </div>
-                <button type="button" onClick={() => removeSelectedIngredient(idx)} className="p-2 text-bakery-accent hover:text-red-500 transition-colors">
-                  <Trash2 size={18} />
-                </button>
               </div>
             ))}
           </div>
@@ -1245,11 +1273,11 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className={`bakery-card transition-all p-0 ${isExpanded ? 'ring-4 ring-bakery-brown shadow-xl' : 'hover:border-bakery-brown hover:shadow-lg'}`}>
-      <div className="p-4 md:p-8 lg:p-10 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="flex gap-3 md:gap-6 items-center">
-          <div className="bg-bakery-wheat/30 px-3 py-2 md:px-5 md:py-3 rounded-xl text-right min-w-[60px] md:min-w-[100px]">
-            <div className="text-[8px] md:text-xs uppercase font-bold text-bakery-accent tracking-widest leading-none mb-2">Yield</div>
+    <div className={`bakery-card transition-all p-0 ${isExpanded ? 'ring-4 ring-bakery-brown shadow-2xl' : 'hover:border-bakery-brown hover:shadow-xl'}`}>
+      <div className="p-4 md:p-8 lg:p-12 flex flex-nowrap justify-between items-center cursor-pointer gap-4 md:gap-8 lg:gap-16" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="flex gap-4 md:gap-10 lg:gap-16 items-center min-w-0 flex-1">
+          <div className="bg-bakery-wheat/30 px-3 py-2 md:px-5 md:py-6 rounded-2xl text-right min-w-[80px] md:min-w-[120px] lg:min-w-[180px] shrink-0 border border-bakery-accent/10">
+            <div className="text-[8px] md:text-xs lg:text-sm uppercase font-bold text-bakery-accent tracking-widest leading-none mb-1 md:mb-4">Yield</div>
             <input 
               type="number"
               min="1"
@@ -1260,20 +1288,28 @@ function RecipeCard({ recipe, onDelete, onEdit, onUpdateYield, costs, formatPric
                 else if (e.target.value === '') onUpdateYield(0);
               }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-transparent border-none p-0 text-right font-serif font-bold italic text-sm md:text-xl lg:text-2xl w-full focus:ring-0"
+              className="bg-transparent border-none p-0 text-right font-serif font-bold italic text-sm md:text-xl lg:text-4xl w-full focus:ring-0"
             />
           </div>
-          <div>
-            <h4 className="serif-italic text-lg md:text-2xl lg:text-3xl line-clamp-1">{recipe.name}</h4>
+          <div className="min-w-0 flex-1">
+            <h4 className="serif-italic text-lg md:text-3xl lg:text-5xl truncate pr-4 text-bakery-brown" title={recipe.name}>{recipe.name}</h4>
+            <div className="flex items-center gap-3 mt-2 hidden md:flex">
+              <span className="px-3 py-1 bg-bakery-cream border border-bakery-wheat rounded-full text-[10px] font-bold text-bakery-accent uppercase tracking-widest">
+                {recipe.ingredients.length} {t.ingredients}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-4 md:gap-10">
+        <div className="flex items-center gap-4 md:gap-12 lg:gap-24 shrink-0">
           <div className="text-right">
-            <p className="text-[8px] md:text-xs uppercase font-bold text-bakery-accent tracking-widest mb-1">{t.cogs_per_piece}</p>
-            <p className="font-bold text-xl md:text-3xl lg:text-4xl text-bakery-brown">{formatPrice(costs.hppPerPc)}</p>
+            <p className="text-[8px] md:text-xs lg:text-sm uppercase font-bold text-bakery-accent tracking-widest mb-1 md:mb-3">{t.cogs_per_piece}</p>
+            <p className="font-bold text-xl md:text-4xl lg:text-6xl text-bakery-brown whitespace-nowrap">{formatPrice(costs.hppPerPc)}</p>
           </div>
-          <motion.div animate={{ rotate: isExpanded ? 90 : 0 }}>
-            <ChevronRight size={24} className="text-bakery-wheat md:w-8 md:h-8" />
+          <motion.div 
+            animate={{ rotate: isExpanded ? 90 : 0 }} 
+            className="shrink-0 w-10 h-10 md:w-16 md:h-16 rounded-full bg-bakery-cream border-2 border-bakery-wheat flex items-center justify-center hover:bg-bakery-wheat transition-colors"
+          >
+            <ChevronRight size={32} className="text-bakery-brown md:w-10 md:h-10" />
           </motion.div>
         </div>
       </div>
